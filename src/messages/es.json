@@ -1,0 +1,23 @@
+{
+  "navbar": {
+    "about": "Sobre mí",
+    "projects": "Proyectos",
+    "contact": "Contacto"
+  },
+  "home": {
+    "menu": "Inicio",
+    "welcome": "Bienvenido a la sección"
+  },
+  "projectss":{
+    "title": "Proyectos",
+    "description":"Listado de proyectos o ejemplos aquí."
+  },
+  "contact":{
+    "title": "Contact",
+    "description":"Form or contact information here."
+  },
+    "about": {
+    "title": "Sobre mí",
+    "description": "Información sobre mí aquí."
+  }
+}
