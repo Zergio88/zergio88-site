@@ -4,9 +4,8 @@ import { Canvas, useFrame } from "@react-three/fiber";
 import { Texture, Mesh } from "three";
 import { useRef, useState } from "react";
 import { Box, useTexture } from "@react-three/drei";
-import { useRouter } from "@/i18n/navigation"; // Corregido aquí
 
-export default function MinecraftBlock() {
+export default function CubePlanetVenus() {
   const [targetFace, setTargetFace] = useState(0);
 
   const handleMouseMove = (
@@ -29,7 +28,7 @@ export default function MinecraftBlock() {
 
   return (
     <div
-      className="w-64 h-64 md:w-150 md:h-150"
+      className="w-64 h-64"
       onMouseMove={handleMouseMove}
       onTouchMove={(e) => {
         const touch = e.touches[0];
@@ -54,14 +53,13 @@ interface CubeProps {
 }
 
 function MinecraftCube({ targetFace }: CubeProps) {
-  const router = useRouter();
   const textures: Texture[] = useTexture([
-    "/textures/minecraft/right.png",
-    "/textures/minecraft/left.png",
-    "/textures/minecraft/back.png",
-    "/textures/minecraft/front.png",
-    "/textures/minecraft/top.png",
-    "/textures/minecraft/down.png",
+    "/textures/planets/venus_surface.jpg",
+    "/textures/planets/venus_surface.jpg",
+    "/textures/planets/venus_surface.jpg",
+    "/textures/planets/venus_surface.jpg",
+    "/textures/planets/venus_surface.jpg",
+    "/textures/planets/venus_surface.jpg",
   ]);
 
   const cubeRef = useRef<Mesh>(null!);
@@ -85,17 +83,7 @@ function MinecraftCube({ targetFace }: CubeProps) {
   });
 
   return (
-    <Box
-      ref={cubeRef}
-      args={[2, 2, 2]}
-      onClick={() => router.push("/projectss")}
-      onPointerOver={() => {
-        document.body.style.cursor = "pointer";
-      }}
-      onPointerOut={() => {
-        document.body.style.cursor = "default";
-      }}
-    >
+    <Box ref={cubeRef} args={[2, 2, 2]}>
       {textures.map((tex, i) => (
         <meshStandardMaterial
           attach={`material-${i}`}

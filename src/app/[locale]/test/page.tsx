@@ -1,3 +1,5 @@
+import Cube3D from "./Cube3D";
+import CubePlanetVenus from "./CubePlanetVenus";
 import CubeSnapMouse from "./CubeSnapMouse";
 import MinecraftBlock from "./MinecraftBlock";
 
@@ -6,12 +8,13 @@ export default function TestPage() {
     <div className="min-h-screen flex flex-col items-center justify-center
       bg-gradient-to-b from-[#0a0a0a] via-[#1a1a1a] to-[#0a0a0a] text-[#c0c0c0] px-6 font-mono gap-10 py-10">
 
-      <h1 className="text-5xl md:text-6xl font-extrabold text-[#f0f0f0] drop-shadow-md mb-10">
-        Cubo 3D Snap a Caras
-      </h1>
-      <MinecraftBlock />
-      <CubeSnapMouse />
 
+      {/* Horizontal cube container */}
+        <div className="flex flex-row flex-wrap justify-center items-center gap-4 md:gap-6">
+          <MinecraftBlock />
+          <CubeSnapMouse />
+          <CubePlanetVenus />
+        </div>
     </div>
   );
 }
