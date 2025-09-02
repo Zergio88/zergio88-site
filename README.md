@@ -62,6 +62,8 @@ npm install
 # Run in development
 npm run dev
 
+```
+
 ### 5. Link to the Vercel site
 
 🌍 **Visit the live site:** [zergio88.site](https://zergio88.site)
