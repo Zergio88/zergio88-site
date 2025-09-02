@@ -1,18 +1,22 @@
-zergio88-site 
+# 1. zergio88-site 
 
-1. Personal website created with Next.js, React, and Tailwind CSS. Currently in the initial layout stage, it will be the portfolio where I'll showcase my projects, experience, and contact information.
+Personal website created with Next.js, React, and Tailwind CSS. Currently in the initial layout stage, it will be the portfolio where I'll showcase my projects, experience, and contact information.
 
-2. Technology Stack
+## 2. Technology Stack
 
-Technologies:
-![Next.js](https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=nextdotjs)
-![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
-![TailwindCSS](https://img.shields.io/badge/TailwindCSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
-![Vercel](https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)
+Technologies:<br>
+&nbsp;&nbsp;![Next.js](https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=nextdotjs)<br>
+&nbsp;&nbsp;![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)<br>
+&nbsp;&nbsp;![TailwindCSS](https://img.shields.io/badge/TailwindCSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)<br>
+&nbsp;&nbsp;![Vercel](https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)<br>
+&nbsp;&nbsp;![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)<br>
+&nbsp;&nbsp;![VSCode](https://img.shields.io/badge/VSCode-007ACC?style=for-the-badge&logo=visualstudiocode&logoColor=white)<br>
+&nbsp;&nbsp;![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white)<br>
+
+## 3. Folder structure
 
 
-3. Folder structure
-
+```mermaid
 flowchart TD
     A[ZERGIO88-SITE] --> B[.next]
     A --> C[node_modules]
@@ -39,9 +43,10 @@ flowchart TD
     A --> L[tsconfig.json]
 
 
-4. How to run the project locally
 
-## 🚀 Installation and execution
+## 4. How to run the project locally
+
+### 🚀 Installation and execution
 
 ```bash
 # Clone the repository
@@ -56,7 +61,6 @@ npm install
 # Run in development
 npm run dev
 
-5. **Link to the Vercel site**
+## 5. **Link to the Vercel site**
 
-```Markdown
-🌍 **Visit the live site:** [miportfolio.vercel.app](https://zergio88.site)
+🌍 **Visit the live site:** [zergio88.site](https://zergio88.site)
