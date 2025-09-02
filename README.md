@@ -1,8 +1,8 @@
-# 1. zergio88-site 
+## 1. zergio88-site 
 
 Personal website created with Next.js, React, and Tailwind CSS. Currently in the initial layout stage, it will be the portfolio where I'll showcase my projects, experience, and contact information.
 
-## 2. Technology Stack
+### 2. Technology Stack
 
 Technologies:<br>
 &nbsp;&nbsp;![Next.js](https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=nextdotjs)<br>
@@ -13,7 +13,7 @@ Technologies:<br>
 &nbsp;&nbsp;![VSCode](https://img.shields.io/badge/VSCode-007ACC?style=for-the-badge&logo=visualstudiocode&logoColor=white)<br>
 &nbsp;&nbsp;![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white)<br>
 
-## 3. Folder structure
+### 3. Folder structure
 
 
 ```mermaid
@@ -42,11 +42,12 @@ flowchart TD
     A --> K[package.json]
     A --> L[tsconfig.json]
 
+```
 
 
-## 4. How to run the project locally
+### 4. How to run the project locally
 
-### 🚀 Installation and execution
+##### 🚀 Installation and execution
 
 ```bash
 # Clone the repository
@@ -61,6 +62,6 @@ npm install
 # Run in development
 npm run dev
 
-## 5. **Link to the Vercel site**
+### 5. Link to the Vercel site
 
 🌍 **Visit the live site:** [zergio88.site](https://zergio88.site)
