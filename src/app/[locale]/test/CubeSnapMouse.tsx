@@ -3,21 +3,27 @@
 import { Canvas, useFrame } from "@react-three/fiber";
 import { useRef, useState } from "react";
 import { Box } from "@react-three/drei";
+import { Mesh } from "three";
 
 export default function CubeSnapMouse() {
   const [targetFace, setTargetFace] = useState(0);
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+  const handleMouseMove = (
+    e: Pick<React.TouchEvent<HTMLDivElement>, "currentTarget"> & {
+      clientX: number;
+      clientY: number;
+    }
+  ) => {
     const { clientX, clientY, currentTarget } = e;
     const rect = currentTarget.getBoundingClientRect();
     const xRatio = (clientX - rect.left) / rect.width;
     const yRatio = (clientY - rect.top) / rect.height;
 
-    if (yRatio < 0.33) setTargetFace(4);       // arriba
-    else if (yRatio > 0.66) setTargetFace(5);  // abajo
-    else if (xRatio < 0.33) setTargetFace(3);  // izquierda
-    else if (xRatio > 0.66) setTargetFace(1);  // derecha
-    else setTargetFace(0);                      // frente
+    if (yRatio < 0.33) setTargetFace(4);
+    else if (yRatio > 0.66) setTargetFace(5);
+    else if (xRatio < 0.33) setTargetFace(3);
+    else if (xRatio > 0.66) setTargetFace(1);
+    else setTargetFace(0);
   };
 
   return (
@@ -26,12 +32,11 @@ export default function CubeSnapMouse() {
       onMouseMove={handleMouseMove}
       onTouchMove={(e) => {
         const touch = e.touches[0];
-        const target = e.currentTarget.getBoundingClientRect();
         handleMouseMove({
           clientX: touch.clientX,
           clientY: touch.clientY,
           currentTarget: e.currentTarget,
-        } as any);
+        });
       }}
     >
       <Canvas>
@@ -44,21 +49,20 @@ export default function CubeSnapMouse() {
   );
 }
 
-// Componente interno que usa useFrame
 interface CubeProps {
   meshTargetFace: number;
 }
 
 function Cube({ meshTargetFace }: CubeProps) {
-  const cubeRef = useRef<any>(null);
+  const cubeRef = useRef<Mesh>(null!);
 
   const rotations: [number, number, number][] = [
-    [0, 0, 0],               // frente
-    [0, Math.PI / 2, 0],     // derecha
-    [0, Math.PI, 0],         // atrás
-    [0, -Math.PI / 2, 0],    // izquierda
-    [-Math.PI / 2, 0, 0],    // arriba
-    [Math.PI / 2, 0, 0],     // abajo
+    [0, 0, 0],
+    [0, Math.PI / 2, 0],
+    [0, Math.PI, 0],
+    [0, -Math.PI / 2, 0],
+    [-Math.PI / 2, 0, 0],
+    [Math.PI / 2, 0, 0],
   ];
 
   useFrame(() => {
