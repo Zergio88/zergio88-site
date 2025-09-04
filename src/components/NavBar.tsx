@@ -22,7 +22,7 @@ export default function NavBar() {
   function handleSelectOnChange(currentLocale: (typeof routing.locales)[number]) {
     const query = Object.fromEntries(new URLSearchParams(window.location.search));
     router.replace({ pathname, query }, { locale: currentLocale });
-    setMenuOpen(false); // Cerrar menú al cambiar idioma
+    setMenuOpen(false); // Close menu when changing language
   }
 
   return (

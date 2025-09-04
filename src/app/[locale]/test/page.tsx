@@ -1,7 +1,5 @@
-import Cube3D from "./Cube3D";
-import CubePlanetVenus from "./CubePlanetVenus";
 import CubeSnapMouse from "./CubeSnapMouse";
-import MinecraftBlock from "./MinecraftBlock";
+
 
 export default function TestPage() {
   return (
@@ -10,11 +8,9 @@ export default function TestPage() {
 
 
       {/* Horizontal cube container */}
-        <div className="flex flex-row flex-wrap justify-center items-center gap-4 md:gap-6">
-          <MinecraftBlock />
-          <CubeSnapMouse />
-          <CubePlanetVenus />
-        </div>
+      <div className="flex flex-row flex-wrap justify-center items-center gap-4 md:gap-6">
+        <CubeSnapMouse />
+      </div>
     </div>
   );
 }

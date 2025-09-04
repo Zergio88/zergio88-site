@@ -8,16 +8,40 @@
     "menu": "Início",
     "welcome": "Bem-vindo à seção"
   },
-  "projectss":{
+  "projectss": {
     "title": "Projetos",
-    "description":"Lista de projetos ou exemplos aqui"
+    "description": "Lista de projetos ou exemplos aqui"
   },
-  "contact":{
+  "contact": {
     "title": "Contato",
-    "description":"Formulário ou informações de contato aqui."
+    "description": "Formulário ou informações de contato aqui."
   },
   "about": {
     "title": "Sobre mim",
     "description": "Informações sobre mim aqui."
+  },
+  "cube": {
+    "front": "O gato",
+    "right": "Meu vizinho",
+    "back": "Um hacker",
+    "left": "A vovó",
+    "top": "O cachorro",
+    "down": "Um hacker"
+  },
+  "venus": {
+    "front": "come",
+    "right": "quebrou",
+    "back": "escreve",
+    "left": "canta",
+    "top": "esquece",
+    "down": "escreve"
+  },
+  "random": {
+    "front": "a pizza",
+    "right": "o código",
+    "back": "o teclado",
+    "left": "as chaves",
+    "top": "o meme",
+    "down": "o teclado"
   }
 }

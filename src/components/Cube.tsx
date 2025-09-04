@@ -1,43 +1,46 @@
 "use client";
 
 import { Canvas, useFrame } from "@react-three/fiber";
+import { Box, useTexture } from "@react-three/drei";
+import { Mesh, Texture } from "three";
 import { useRef, useState } from "react";
-import { Box } from "@react-three/drei";
-import { Mesh } from "three";
-import { CubeFaceText } from "../../../components/CubeFaceText";
+import { CubeFaceText } from "./CubeFaceText";
 
-export default function CubeSnapMouse() {
+interface CubeProps {
+  faceTextures: string[];              // image routes
+  faceTexts: string[];                 // texts for each side
+  onClick?: () => void;                // generic click callback
+}
+
+export default function Cube({ faceTextures, faceTexts, onClick }: CubeProps) {
   const [targetFace, setTargetFace] = useState(0);
 
-  const handleMouseMove = (
-    e: Pick<React.TouchEvent<HTMLDivElement>, "currentTarget"> & {
-      clientX: number;
-      clientY: number;
-    }
+  // Detects pointer / touch inside div
+  const handlePointerMove = (
+    e: Pick<React.TouchEvent<HTMLDivElement>, "currentTarget"> & { clientX: number; clientY: number }
   ) => {
-    /* calculates the position of the pointer within the div containing the cube */
     const { clientX, clientY, currentTarget } = e;
     const rect = currentTarget.getBoundingClientRect();
     const xRatio = (clientX - rect.left) / rect.width;
     const yRatio = (clientY - rect.top) / rect.height;
 
     let newFace = 0;
-    if (yRatio < 0.33) newFace = 4; // top
-    else if (yRatio > 0.66) newFace = 5; // down
-    else if (xRatio < 0.33) newFace = 3; // left
-    else if (xRatio > 0.66) newFace = 1; // right
-    else newFace = 0; // front
+    if (yRatio < 0.33) newFace = 4;       // top
+    else if (yRatio > 0.66) newFace = 5;  // down
+    else if (xRatio < 0.33) newFace = 3;  // left
+    else if (xRatio > 0.66) newFace = 1;  // right
+    else newFace = 0;                     // front
 
     if (newFace !== targetFace) setTargetFace(newFace);
   };
 
   return (
     <div
-      className="w-64 h-64 md:w-80 md:h-80"
-      onMouseMove={handleMouseMove}
+      className="w-40 h-40 sm:w-56 sm:h-56 md:w-72 md:h-72"
+      onMouseMove={handlePointerMove}
       onTouchMove={(e) => {
         const touch = e.touches[0];
-        handleMouseMove({
+        handlePointerMove({
           clientX: touch.clientX,
           clientY: touch.clientY,
           currentTarget: e.currentTarget,
@@ -47,44 +50,46 @@ export default function CubeSnapMouse() {
       <Canvas>
         <ambientLight intensity={0.5} />
         <directionalLight position={[5, 5, 5]} intensity={1} />
-        <CubeMesh meshTargetFace={targetFace} />
+        <CubeMesh
+          meshTargetFace={targetFace}
+          faceTextures={faceTextures}
+          faceTexts={faceTexts}
+          onClick={onClick}
+        />
       </Canvas>
     </div>
   );
 }
 
-interface CubeProps {
+interface CubeMeshProps {
   meshTargetFace: number;
+  faceTextures: string[];
+  faceTexts: string[];
+  onClick?: () => void;
 }
 
-function CubeMesh({ meshTargetFace }: CubeProps) {
+function CubeMesh({ meshTargetFace, faceTextures, faceTexts, onClick }: CubeMeshProps) {
   const cubeRef = useRef<Mesh>(null!);
   const [displayFace, setDisplayFace] = useState(meshTargetFace);
   const [animKey, setAnimKey] = useState(0);
 
-  // Detectar mobile
+  // Textures loaded with useTexture
+  const textures: Texture[] = useTexture(faceTextures);
+
+  // Detects mobile
   const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
-  const size = isMobile ? 2 : 3; // cube size
+  const size = isMobile ? 4 : 3;
 
   const rotations: [number, number, number][] = [
-    [0, 0, 0],
-    [0, -Math.PI / 2, 0],
-    [0, Math.PI, 0],
-    [0, Math.PI / 2, 0],
-    [Math.PI / 2, 0, 0],
-    [-Math.PI / 2, 0, 0],
+    [0, 0, 0],           // front
+    [0, -Math.PI / 2, 0], // right
+    [0, Math.PI, 0],      // back
+    [0, Math.PI / 2, 0],  // left
+    [Math.PI / 2, 0, 0],  // top
+    [-Math.PI / 2, 0, 0], // down
   ];
 
-  const faceTexts = [
-    "lado frente",
-    "lado derecho",
-    "lado atrás",
-    "lado izquierdo",
-    "lado arriba",
-    "lado abajo",
-  ];
-
-  const offset = size / 2 + 0.02; // distance of the text from the center
+  const offset = size / 2 + 0.02; // text distance
   const facePositions: [number, number, number][] = [
     [0, 0, offset],
     [offset, 0, 0],
@@ -103,15 +108,13 @@ function CubeMesh({ meshTargetFace }: CubeProps) {
     [Math.PI / 2, 0, 0],
   ];
 
-  // Faces that must be mirrored horizontally
   const flipXMap = [false, true, false, true, false, false];
-
-  const EASE = 0.10 * (2 / size); // rotation speed adapted to size
+  const EASE = 0.1 * (2 / size);
   const EPS = 0.02;
 
+  // Animation of the turn
   useFrame(() => {
     if (!cubeRef.current) return;
-
     const [tx, ty, tz] = rotations[meshTargetFace];
     const r = cubeRef.current.rotation;
 
@@ -119,10 +122,7 @@ function CubeMesh({ meshTargetFace }: CubeProps) {
     r.y += (ty - r.y) * EASE;
     r.z += (tz - r.z) * EASE;
 
-    const dx = Math.abs(tx - r.x);
-    const dy = Math.abs(ty - r.y);
-    const dz = Math.abs(tz - r.z);
-    const settled = dx < EPS && dy < EPS && dz < EPS;
+    const settled = Math.abs(tx - r.x) < EPS && Math.abs(ty - r.y) < EPS && Math.abs(tz - r.z) < EPS;
 
     if (settled && displayFace !== meshTargetFace) {
       setDisplayFace(meshTargetFace);
@@ -131,16 +131,23 @@ function CubeMesh({ meshTargetFace }: CubeProps) {
   });
 
   return (
-    <group ref={cubeRef}>
+    <group
+       ref={cubeRef} 
+       onClick={onClick} 
+       onPointerOver={(e) => {
+          document.body.style.cursor = "pointer";
+       }}
+        onPointerOut={(e) => {
+          document.body.style.cursor = "default";
+    }}>
+
       <Box args={[size, size, size]}>
-        <meshStandardMaterial attach="material-0" color="#A0522D" />
-        <meshStandardMaterial attach="material-1" color="#8B4513" />
-        <meshStandardMaterial attach="material-2" color="#CD853F" />
-        <meshStandardMaterial attach="material-3" color="#D2691E" />
-        <meshStandardMaterial attach="material-4" color="#8B4513" />
-        <meshStandardMaterial attach="material-5" color="#A0522D" />
+        {textures.map((tex, i) => (
+          <meshStandardMaterial attach={`material-${i}`} map={tex} key={i} />
+        ))}
       </Box>
 
+      {/* Animated text only on the active side */}
       <CubeFaceText
         key={animKey}
         text={faceTexts[displayFace]}
