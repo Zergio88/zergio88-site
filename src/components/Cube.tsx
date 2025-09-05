@@ -3,16 +3,20 @@
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Box, useTexture } from "@react-three/drei";
 import { Mesh, Texture } from "three";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { CubeFaceText } from "./CubeFaceText";
 
 interface CubeProps {
   faceTextures: string[];              // image routes
   faceTexts: string[];                 // texts for each side
   onClick?: () => void;                // generic click callback
+  fontUrl?: string;                    // optional font
+  color?: string;
+  outlineWidth?: number;
+  outlineColor?: string;
 }
 
-export default function Cube({ faceTextures, faceTexts, onClick }: CubeProps) {
+export default function Cube({ faceTextures, faceTexts, onClick, color, fontUrl, outlineWidth, outlineColor }: CubeProps) {
   const [targetFace, setTargetFace] = useState(0);
 
   // Detects pointer / touch inside div
@@ -55,6 +59,11 @@ export default function Cube({ faceTextures, faceTexts, onClick }: CubeProps) {
           faceTextures={faceTextures}
           faceTexts={faceTexts}
           onClick={onClick}
+          fontUrl={fontUrl}
+          color={color}
+          outlineWidth={outlineWidth}
+          outlineColor={outlineColor}
+
         />
       </Canvas>
     </div>
@@ -66,12 +75,28 @@ interface CubeMeshProps {
   faceTextures: string[];
   faceTexts: string[];
   onClick?: () => void;
+  fontUrl?: string;
+  color?: string;
+  outlineWidth?: number;
+  outlineColor?: string;
 }
 
-function CubeMesh({ meshTargetFace, faceTextures, faceTexts, onClick }: CubeMeshProps) {
+function CubeMesh({ meshTargetFace, faceTextures, faceTexts, onClick, fontUrl, color, outlineWidth, outlineColor }: CubeMeshProps) {
   const cubeRef = useRef<Mesh>(null!);
   const [displayFace, setDisplayFace] = useState(meshTargetFace);
   const [animKey, setAnimKey] = useState(0);
+
+  // state for the initial animation
+  const [hintActive, setHintActive] = useState(true);
+
+  // turns off after 3s
+  useEffect(() => {
+    const timer = setTimeout(() => setHintActive(false), 3000);
+    return () => clearTimeout(timer);
+  }, []);
+
+
+
 
   // Textures loaded with useTexture
   const textures: Texture[] = useTexture(faceTextures);
@@ -110,13 +135,22 @@ function CubeMesh({ meshTargetFace, faceTextures, faceTexts, onClick }: CubeMesh
 
   const flipXMap = [false, true, false, true, false, false];
   const EASE = 0.1 * (2 / size);
-  const EPS = 0.02;
+  const EPS = 0.1;
 
   // Animation of the turn
-  useFrame(() => {
+  useFrame(({ clock }) => {
+
     if (!cubeRef.current) return;
     const [tx, ty, tz] = rotations[meshTargetFace];
     const r = cubeRef.current.rotation;
+
+    if (hintActive) {
+      // micro oscillation at the start
+      const t = clock.getElapsedTime();
+      r.y = Math.sin(t * 2) * 0.2; // move in Y
+      r.x = Math.sin(t) * 0.1;     // move in X
+      return;
+    }
 
     r.x += (tx - r.x) * EASE;
     r.y += (ty - r.y) * EASE;
@@ -132,14 +166,14 @@ function CubeMesh({ meshTargetFace, faceTextures, faceTexts, onClick }: CubeMesh
 
   return (
     <group
-       ref={cubeRef} 
-       onClick={onClick} 
-       onPointerOver={(e) => {
-          document.body.style.cursor = "pointer";
-       }}
-        onPointerOut={(e) => {
-          document.body.style.cursor = "default";
-    }}>
+      ref={cubeRef}
+      onClick={onClick}
+      onPointerOver={(e) => {
+        document.body.style.cursor = "pointer";
+      }}
+      onPointerOut={(e) => {
+        document.body.style.cursor = "default";
+      }}>
 
       <Box args={[size, size, size]}>
         {textures.map((tex, i) => (
@@ -155,6 +189,10 @@ function CubeMesh({ meshTargetFace, faceTextures, faceTexts, onClick }: CubeMesh
         rotation={faceRotations[displayFace]}
         flipX={flipXMap[displayFace]}
         scaleFactor={size / 2}
+        fontUrl={fontUrl}
+        color={color}
+        outlineWidth={outlineWidth}
+        outlineColor={outlineColor}
       />
     </group>
   );

@@ -21,27 +21,27 @@
     "description": "Informações sobre mim aqui."
   },
   "cube": {
-    "front": "O gato",
-    "right": "Meu vizinho",
-    "back": "Um hacker",
-    "left": "A vovó",
-    "top": "O cachorro",
-    "down": "Um hacker"
+    "front": "Java",
+    "right": "C++",
+    "back": "Pascal",
+    "left": "Python",
+    "top": "C",
+    "down": "C#"
   },
   "venus": {
-    "front": "come",
-    "right": "quebrou",
-    "back": "escreve",
-    "left": "canta",
-    "top": "esquece",
-    "down": "escreve"
+    "front": "React Js",
+    "right": "Javascript",
+    "back": "HTML",
+    "left": "Typescript",
+    "top": "Css",
+    "down": "Next Js"
   },
   "random": {
-    "front": "a pizza",
-    "right": "o código",
-    "back": "o teclado",
-    "left": "as chaves",
-    "top": "o meme",
-    "down": "o teclado"
+    "front": "Flutter",
+    "right": "React\nNative",
+    "back": "Java",
+    "left": "Kotlin",
+    "top": "Java FX",
+    "down": "Swing"
   }
 }

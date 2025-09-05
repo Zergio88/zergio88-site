@@ -7,6 +7,10 @@ interface TextOnFaceProps {
   rotation: [number, number, number];
   flipX?: boolean;          // to mirror horizontally
   scaleFactor?: number;     // to adjust size
+  fontUrl?: string;         // optional
+  color?: string;           // optional, default white
+  outlineWidth?: number;    // optional outline thickness
+  outlineColor?: string;    // optional outline color
 }
 
 export function CubeFaceText({
@@ -15,6 +19,10 @@ export function CubeFaceText({
   rotation,
   flipX = false,
   scaleFactor = 1,
+  fontUrl,
+  color = "white",
+  outlineWidth,
+  outlineColor,
 }: TextOnFaceProps) {
   const [animatedText, setAnimatedText] = useState("");
 
@@ -25,7 +33,7 @@ export function CubeFaceText({
       current++;
       setAnimatedText(text.slice(0, current));
       if (current >= text.length) clearInterval(interval);
-    }, 80);
+    }, 100);
     return () => clearInterval(interval);
   }, [text]);
 
@@ -37,7 +45,15 @@ export function CubeFaceText({
 
   return (
     <group position={position} rotation={rotation} scale={scale}>
-      <Text fontSize={0.3} color="white" anchorX="center" anchorY="middle">
+      <Text
+        fontSize={0.3}
+        color={color}
+        anchorX="center"
+        anchorY="middle"
+        {...(fontUrl ? { font: fontUrl } : {})}
+        {...(outlineWidth ? { outlineWidth } : {})}
+        {...(outlineColor ? { outlineColor } : {})}
+      >
         {animatedText}
       </Text>
     </group>
