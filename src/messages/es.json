@@ -4,6 +4,13 @@
     "projects": "Proyectos",
     "contact": "Contacto"
   },
+  "titles": {
+    "iam": "Soy Sergio Mamani",
+    "dev": "Desarrollador de Software",
+    "profession": "futuro Licenciado en Informática",
+    "enthusiast": "Solucionador de problemas y entusiasta de la tecnología",
+    "prefer": "Amante de Java"
+  },
   "home": {
     "menu": "Inicio",
     "welcome": "Bienvenido a la sección"

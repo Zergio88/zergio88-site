@@ -2,8 +2,10 @@
 
 import { useTranslations } from "next-intl";
 import Cube from "@/components/Cube";
+import RotatingTitle from "@/components/RotatingTitle";
 
 export default function HomePage() {
+  const t = useTranslations("titles");
   const u = useTranslations("cube");
   const v = useTranslations("venus");
   const w = useTranslations("random");
@@ -17,18 +19,30 @@ export default function HomePage() {
     sm:pt-[6vh]     /* tablet / mobile horizontal */
     md:pt-[8vh] /* desktop */">
 
+
+      <div className="flex flex-col items-center space-y-12 pt-12">
+        {/* H1 for SEO */}
+        <h1 className="sr-only">
+          {t("iam")} {t("dev")} {t("profession")} {t("enthusiast")} {t("prefer")}
+        </h1>
+        <RotatingTitle
+          titles={[t("iam"), t("dev"), t("profession"), t("enthusiast"), t("prefer")]}
+          interval={3000} // changes every 3s
+          className="text-4xl font-extrabold text-[#00FF00] text-center"
+        />
+      </div>
       {/* Cube container */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
 
         {/* Skybox cube */}
         <Cube
           faceTextures={[
-            "/textures/skybox/right.png",
-            "/textures/skybox/left.png",
-            "/textures/skybox/back.png",
-            "/textures/skybox/front.png",
-            "/textures/skybox/top.png",
-            "/textures/skybox/down.png",
+            "/textures/skybox/right.webp",
+            "/textures/skybox/left.webp",
+            "/textures/skybox/back.webp",
+            "/textures/skybox/front.webp",
+            "/textures/skybox/top.webp",
+            "/textures/skybox/down.webp",
           ]}
           faceTexts={[
             u("front"),
@@ -47,12 +61,12 @@ export default function HomePage() {
         {/* Cube of Venus */}
         <Cube
           faceTextures={[
-            "/textures/planets/venus_surface.png",
-            "/textures/planets/venus_surface.png",
-            "/textures/planets/venus_surface.png",
-            "/textures/planets/venus_surface.png",
-            "/textures/planets/venus_surface.png",
-            "/textures/planets/venus_surface.png",
+            "/textures/planets/venus_surface.webp",
+            "/textures/planets/venus_surface.webp",
+            "/textures/planets/venus_surface.webp",
+            "/textures/planets/venus_surface.webp",
+            "/textures/planets/venus_surface.webp",
+            "/textures/planets/venus_surface.webp",
           ]}
           faceTexts={[
             v("front"),
@@ -69,12 +83,12 @@ export default function HomePage() {
         {/* Random cube */}
         <Cube
           faceTextures={[
-            "/textures/other/random.png",
-            "/textures/other/random.png",
-            "/textures/other/random.png",
-            "/textures/other/random.png",
-            "/textures/other/random.png",
-            "/textures/other/random.png",
+            "/textures/other/random.webp",
+            "/textures/other/random.webp",
+            "/textures/other/random.webp",
+            "/textures/other/random.webp",
+            "/textures/other/random.webp",
+            "/textures/other/random.webp",
           ]}
           faceTexts={[
             w("front"),
