@@ -26,16 +26,19 @@ export default function RotatingTitle({
   return (
     <div className="relative h-12 flex items-center justify-center">
       <AnimatePresence mode="wait">
-        <motion.span
-          key={index}
-          initial={{ opacity: 0, y: 20, rotateX: -90 }}
-          animate={{ opacity: 1, y: 0, rotateX: 0 }}
-          exit={{ opacity: 0, y: -20, rotateX: 90 }}
-          transition={{ duration: 0.8, ease: "easeInOut" }}
-          className={className}
-        >
-          {titles[index]}
-        </motion.span>
+
+<motion.span
+  key={index}
+  initial={{ opacity: 0, scale: 0.5 }}
+  animate={{ opacity: 1, scale: [1.2, 0.9, 1] }}
+  exit={{ opacity: 0, scale: 0.5 }}
+  transition={{ duration: 0.8 }}
+  className={className}
+>
+  {titles[index]}
+</motion.span>
+
+
       </AnimatePresence>
     </div>
   );
