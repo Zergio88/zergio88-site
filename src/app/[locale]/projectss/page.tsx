@@ -1,19 +1,21 @@
 "use client"
 import { useTranslations, useLocale } from "next-intl"
 import { getPosts, urlFor } from "@/lib/sanity"
+import type { PostSummary } from "@/lib/sanity"
 import { useEffect, useState } from "react"
 import Link from "next/link"
+import Image from "next/image"
 
 export default function ProjectsPage() {
   const t = useTranslations("projectss")
   const locale = useLocale()
-  const [posts, setPosts] = useState<any[]>([])
+  const [posts, setPosts] = useState<PostSummary[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     async function fetchPosts() {
       try {
-  const data = await getPosts(locale)
+        const data = await getPosts(locale)
         setPosts(data)
       } catch (err) {
         console.error("Error fetching posts:", err)
@@ -33,22 +35,25 @@ export default function ProjectsPage() {
       <p className="mb-8">{t("description")}</p>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-        {posts.map((post: any) => (
+        {posts.map((post) => (
           <Link
             key={post._id}
             href={`/${locale}/projectss/${post.slug.current}`}
             className="border rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition"
           >
             {post.coverImage && (
-              <img
-                src={urlFor(post.coverImage).width(400).url()}
+              <Image
+                src={urlFor(post.coverImage).width(600).height(360).url()}
                 alt={post.title}
-                className="w-full h-48 object-cover"
+                width={600}
+                height={360}
+                className="h-48 w-full object-cover"
+                sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
               />
             )}
             <div className="p-4">
               <h2 className="font-bold text-lg">{post.title}</h2>
-              <p className="text-sm mt-2">{post.description}</p>
+              <p className="mt-2 text-sm">{post.description}</p>
             </div>
           </Link>
         ))}

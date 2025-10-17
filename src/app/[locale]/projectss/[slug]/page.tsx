@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 import {
@@ -6,6 +7,7 @@ import {
   type PortableTextMarkComponentProps,
 } from '@portabletext/react';
 import { getPostBySlug, getPosts, urlFor } from '@/lib/sanity';
+import type { SanityImageSource } from '@sanity/image-url/lib/types/types';
 import { routing } from '@/i18n/routing';
 
 type PageProps = {
@@ -15,20 +17,21 @@ type PageProps = {
   }>;
 };
 
-type PortableImageValue = {
-  asset?: unknown;
+type PortableImageValue = SanityImageSource & {
   alt?: string;
 };
 
 const portableTextComponents: PortableTextComponents = {
   types: {
     image: ({ value }: { value: PortableImageValue }) => {
-      if (!value?.asset) return null;
+      if (!value || typeof value === 'string' || !('asset' in value)) return null;
       return (
         <figure className="my-8 flex flex-col items-center gap-3">
-          <img
+          <Image
             src={urlFor(value).width(1600).fit('max').url()}
-            alt={value?.alt || ''}
+            alt={value?.alt || 'Project media'}
+            width={1600}
+            height={900}
             className="h-auto w-full rounded-xl object-cover shadow-2xl"
           />
           {value?.alt && (
@@ -118,10 +121,13 @@ export default async function ProjectDetailPage({ params }: PageProps) {
       </header>
 
       {post.coverImage && (
-        <img
+        <Image
           src={urlFor(post.coverImage).width(1600).fit('max').url()}
           alt={post.title}
+          width={1600}
+          height={900}
           className="h-auto w-full rounded-2xl object-cover shadow-2xl"
+          sizes="(max-width: 768px) 100vw, (max-width: 1024px) 80vw, 60vw"
         />
       )}
 
@@ -140,8 +146,8 @@ export default async function ProjectDetailPage({ params }: PageProps) {
 
 export async function generateStaticParams() {
   const posts = await getPosts();
-  const validSlugs = posts.filter((post: any) => post?.slug?.current);
+  const validSlugs = posts.filter((post) => post.slug?.current);
   return routing.locales.flatMap((locale) =>
-    validSlugs.map((post: any) => ({ locale, slug: post.slug.current }))
+    validSlugs.map((post) => ({ locale, slug: post.slug.current }))
   );
 }
