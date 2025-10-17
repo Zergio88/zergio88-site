@@ -90,7 +90,7 @@ export default async function ProjectDetailPage({ params }: PageProps) {
   }
 
   return (
-    <article className="mx-auto flex max-w-3xl flex-col gap-10 px-6 py-12">
+    <article className="mx-auto flex max-w-4xl flex-col gap-10 px-6 py-12">
       <header className="flex flex-col gap-4 text-balance">
         <p className="text-xs uppercase tracking-[0.35em] text-gray-500">{locale}</p>
         <h1 className="text-4xl font-semibold leading-tight md:text-5xl">{post.title}</h1>

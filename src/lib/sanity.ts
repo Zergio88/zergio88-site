@@ -69,13 +69,13 @@ export async function getPosts(locale: string = 'es'): Promise<PostSummary[]> {
     "description": ${buildFallbackCoalesce('description')}
   }`
   try {
-    console.log("Sanity: fetching posts...", safeLocale)       // 👈 log inicial
+    console.log("Sanity: fetching posts...", safeLocale)       // log inicial
     const posts = await sanityClient.fetch<PostSummary[]>(query, { locale: safeLocale })
-    console.log("Sanity: posts fetched:", posts)   // 👈 revisar qué llega
+    console.log("Sanity: posts fetched:", posts)   // revisar qué llega
     return posts
   } catch (err) {
-    console.error("Sanity: error fetching posts", err) // 👈 revisar errores
-    return []                                       // 👈 evitar que falle la página
+    console.error("Sanity: error fetching posts", err) // revisar errores
+    return []                                       // evitar que falle la página
   }
 }
 
