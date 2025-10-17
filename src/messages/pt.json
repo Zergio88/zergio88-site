@@ -17,15 +17,16 @@
   },
   "projectss": {
     "title": "Projetos",
-    "description": "Lista de projetos ou exemplos aqui"
+    "description": "Lista de projetos.",
+    "viewCode": "Ver código no GitHub"
   },
   "contact": {
     "title": "Contato",
-    "description": "Formulário ou informações de contato aqui."
+    "description": "Formulário ou informações de contato. [em progresso]"
   },
   "about": {
     "title": "Sobre mim",
-    "description": "Informações sobre mim aqui."
+    "description": "Informações sobre mim aqui. [em progresso]"
   },
   "cube": {
     "front": "Java",
