@@ -22,7 +22,7 @@
   },
   "contact": {
     "title": "Contato",
-    "description": "Vou gostar de ler sua mensagem. Escreva e retornarei em breve.",
+    "description": "Se você tiver alguma pergunta ou quiser discutir oportunidades, sinta-se à vontade para entrar em contato. Terei prazer em responder.",
     "links": {
       "title": "Conectar",
       "linkedin": "LinkedIn",
@@ -39,7 +39,9 @@
       "success": "Obrigado! Sua mensagem foi enviada.",
       "error": "Ops, algo deu errado. Tente novamente, por favor.",
       "captcha_placeholder": "Em breve adicionaremos o CAPTCHA aqui para evitar bots.",
-      "limit_reached": "Atingimos o limite mensal de e-mails. Use os links acima para entrar em contato este mês."
+      "limit_reached": "Atingimos o limite mensal de e-mails. Use os links acima para entrar em contato este mês.",
+      "captcha_failed": "Falha na verificação do CAPTCHA. Tente novamente.",
+      "captcha_required": "CAPTCHA é obrigatório. Atualize a página e tente outra vez."
     },
     "placeholders": {
       "name": "Ex.: Juan Perez",

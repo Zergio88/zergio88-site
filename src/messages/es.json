@@ -33,7 +33,9 @@
       "success": "¡Gracias! Tu mensaje fue enviado.",
       "error": "Ups, algo salió mal. Intenta nuevamente, por favor.",
       "captcha_placeholder": "Aquí agregaremos el CAPTCHA para evitar bots.",
-      "limit_reached": "Se alcanzó el límite mensual de correos. Usa las opciones de contacto de arriba para escribirme este mes."
+      "limit_reached": "Se alcanzó el límite mensual de correos. Usa las opciones de contacto de arriba para escribirme este mes.",
+      "captcha_failed": "La verificación de CAPTCHA falló. Intenta nuevamente.",
+      "captcha_required": "Se requiere CAPTCHA. Recarga la página e inténtalo otra vez."
     },
     "links": {
       "title": "Conecta",

@@ -108,9 +108,16 @@ export async function POST(req: Request) {
   const apiKey = process.env.RESEND_API_KEY;
   const from = process.env.RESEND_FROM;
   const to = process.env.RESEND_TO;
+  const recaptchaSecret = process.env.RECAPTCHA_SECRET_KEY;
   if (!apiKey || !from || !to) {
     return NextResponse.json(
       { ok: false, error: "misconfigured" },
+      { status: 500 }
+    );
+  }
+  if (!recaptchaSecret) {
+    return NextResponse.json(
+      { ok: false, error: "captcha_misconfigured" },
       { status: 500 }
     );
   }
@@ -134,7 +141,29 @@ export async function POST(req: Request) {
   try {
     const data = await req.json();
 
-    // TODO: Verify CAPTCHA token here before proceeding.
+    // Verify reCAPTCHA token before proceeding
+    const ip = (req.headers.get("x-forwarded-for") || "").split(",")[0]?.trim() || undefined;
+    const captchaToken: string | undefined = data?.captchaToken;
+    const minScore = parseFloat(process.env.RECAPTCHA_MIN_SCORE || "0.5");
+    if (!captchaToken) {
+      return NextResponse.json({ ok: false, reason: "captcha" }, { status: 400 });
+    }
+
+    const params = new URLSearchParams();
+    params.append("secret", recaptchaSecret);
+    params.append("response", captchaToken);
+    if (ip) params.append("remoteip", ip);
+
+    const verifyRes = await fetch("https://www.google.com/recaptcha/api/siteverify", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: params,
+    });
+    const verifyJson: any = await verifyRes.json().catch(() => ({}));
+    const ok = verifyJson?.success === true && (verifyJson?.score ?? 1) >= minScore;
+    if (!ok) {
+      return NextResponse.json({ ok: false, reason: "captcha" }, { status: 400 });
+    }
 
     const errors = validate(data);
     if (Object.keys(errors).length) {

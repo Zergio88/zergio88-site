@@ -22,7 +22,7 @@
   },
   "contact": {
     "title": "Contact",
-    "description": "I'd love to hear from you. Send a quick message and I'll get back to you.",
+    "description": "If you have any questions or would like to discuss opportunities, feel free to get in touch. I'll be happy to respond.",
     "links": {
       "title": "Connect",
       "linkedin": "LinkedIn",
@@ -39,7 +39,9 @@
       "success": "Thanks! Your message has been sent.",
       "error": "Sorry, something went wrong. Please try again.",
       "captcha_placeholder": "CAPTCHA will appear here soon to keep bots away.",
-      "limit_reached": "We've reached the monthly email limit. Please use the social links above to contact me this month."
+      "limit_reached": "We've reached the monthly email limit. Please use the social links above to contact me this month.",
+      "captcha_failed": "CAPTCHA verification failed. Please try again.",
+      "captcha_required": "CAPTCHA is required. Refresh the page and try again."
     },
     "placeholders": {
       "name": "e.g. Juan Perez",

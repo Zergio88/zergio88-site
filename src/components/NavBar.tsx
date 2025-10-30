@@ -1,9 +1,8 @@
 "use client";
 import { routing } from "@/i18n/routing";
 import { useLocale, useTranslations } from "next-intl";
-import { usePathname, useRouter } from "@/i18n/navigation";
+import { usePathname, useRouter, Link } from "@/i18n/navigation";
 import "../app/[locale]/globals.css";
-import Link from "next/link";
 import { useState } from "react";
 
 const languages = [
@@ -31,7 +30,7 @@ export default function NavBar() {
 
         {/* Logo */}
         <div className="flex items-center space-x-2">
-          <Link href={`/${locale}`}>
+          <Link href="/">
             <img
               src="/logo.svg"
               alt="Logo"
@@ -43,17 +42,17 @@ export default function NavBar() {
         {/* Desktop menu */}
         <ul className="hidden md:flex items-center space-x-6 ml-auto">
           <li>
-            <Link href={`/${locale}/projectss`} className="uppercase">
+            <Link href="/projectss" className="uppercase">
               {t("projects")}
             </Link>
           </li>
           <li>
-            <Link href={`/${locale}/contact`} className="uppercase">
+            <Link href="/contact" className="uppercase">
               {t("contact")}
             </Link>
           </li>
           <li>
-            <Link href={`/${locale}/about`} className="uppercase">
+            <Link href="/about" className="uppercase">
               {t("about")}
             </Link>
           </li>
@@ -121,7 +120,7 @@ export default function NavBar() {
         <ul className="md:hidden absolute top-full right-0 w-40 bg-[#1a1a1a] rounded-b-md shadow-lg z-50">
           <li>
             <Link
-              href={`/${locale}/projectss`}
+              href="/projectss"
               className="block px-4 py-2 text-white hover:bg-[#333]"
               onClick={() => setMenuOpen(false)}
             >
@@ -130,7 +129,7 @@ export default function NavBar() {
           </li>
           <li>
             <Link
-              href={`/${locale}/contact`}
+              href="/contact"
               className="block px-4 py-2 text-white hover:bg-[#333]"
               onClick={() => setMenuOpen(false)}
             >
@@ -139,7 +138,7 @@ export default function NavBar() {
           </li>
           <li>
             <Link
-              href={`/${locale}/about`}
+              href="/about"
               className="block px-4 py-2 text-white hover:bg-[#333]"
               onClick={() => setMenuOpen(false)}
             >

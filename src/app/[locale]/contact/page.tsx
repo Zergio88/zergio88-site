@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
+import Script from "next/script";
 
 // Simple, accessible Contact page with a basic form.
 // Notes:
@@ -21,6 +22,51 @@ const ContactPage: React.FC = () => {
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error" | "limit">("idle");
+  const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const [captchaWidgetId, setCaptchaWidgetId] = useState<number | null>(null);
+  const recaptchaContainerRef = useRef<HTMLDivElement | null>(null);
+
+  // Initialize reCAPTCHA v2 Checkbox
+  useEffect(() => {
+    if (!siteKey) return;
+    const init = () => {
+      const g = (globalThis as any).grecaptcha;
+      if (!g) return;
+      if (captchaWidgetId !== null) return; // already rendered in this lifecycle
+      const container = recaptchaContainerRef.current;
+      if (!container) return;
+      // If the container already has children (iframe), avoid rendering again
+      if (container.childElementCount > 0) return;
+      const id = g.render(container, {
+        sitekey: siteKey,
+        callback: (token: string) => {
+          setCaptchaToken(token);
+          setErrors((e) => {
+            const { captcha, ...rest } = e;
+            return rest;
+          });
+        },
+        "expired-callback": () => {
+          setCaptchaToken(null);
+        },
+        theme: "light",
+        size: "normal",
+      });
+      setCaptchaWidgetId(id);
+    };
+
+    // If grecaptcha already loaded, init immediately; otherwise set onload handler once
+    const g = (globalThis as any).grecaptcha;
+    if (g) {
+      init();
+    } else {
+      (globalThis as any).onRecaptchaLoad = () => init();
+    }
+    return () => {
+      (globalThis as any).onRecaptchaLoad = undefined;
+    };
+  }, [siteKey, captchaWidgetId]);
 
   // Basic client-side validation. We'll also validate on the server later.
   const validate = () => {
@@ -51,11 +97,18 @@ const ContactPage: React.FC = () => {
     // e.g., const captchaToken = await captcha.execute();
 
     try {
+      // Execute reCAPTCHA v3 to obtain token
+      if (!captchaToken) {
+        setStatus("idle");
+        setErrors({ captcha: t("form.captcha_required") });
+        return;
+      }
+
       // Call API route to send email via Resend.
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...form /*, captchaToken */ }),
+        body: JSON.stringify({ ...form, captchaToken }),
       });
 
       if (res.status === 429) {
@@ -65,6 +118,14 @@ const ContactPage: React.FC = () => {
       }
 
       if (!res.ok) {
+        if (res.status === 400) {
+          const data = await res.json().catch(() => null);
+          if (data?.reason === "captcha") {
+            setErrors({ captcha: t("form.captcha_failed") });
+            setStatus("idle");
+            return;
+          }
+        }
         // Optionally read validation errors here and map to setErrors
         setStatus("error");
         return;
@@ -72,13 +133,28 @@ const ContactPage: React.FC = () => {
 
       setStatus("success");
       setForm({ name: "", email: "", subject: "", message: "" });
+      // Reset captcha widget for a new submission cycle
+      try {
+        const g = (globalThis as any).grecaptcha;
+        if (g && captchaWidgetId !== null) {
+          g.reset(captchaWidgetId);
+        }
+        setCaptchaToken(null);
+      } catch {}
     } catch (err) {
       setStatus("error");
     }
   };
 
   return (
-    <div className="mx-auto max-w-2xl p-6 sm:p-8">
+    <div className="mx-auto max-w-3xl p-6 sm:p-8">
+      {/* reCAPTCHA v2 checkbox script */}
+      {siteKey && (
+        <Script
+          src="https://www.google.com/recaptcha/api.js?onload=onRecaptchaLoad&render=explicit"
+          strategy="afterInteractive"
+        />
+      )}
       {/* Title and short description */}
       <h1 className="text-3xl font-bold tracking-tight mb-2">{t("title")}</h1>
       <p className="text-neutral-600 dark:text-neutral-300 mb-4">{t("description")}</p>
@@ -129,8 +205,8 @@ const ContactPage: React.FC = () => {
         </a>
       </div>
 
-      {/* Contact form */}
-      <form onSubmit={onSubmit} noValidate className="space-y-5">
+  {/* Contact form (kept slightly narrower than the container) */}
+  <form onSubmit={onSubmit} noValidate className="space-y-5 max-w-2xl">
         {/* Name */}
         <div>
           <label htmlFor="name" className="block text-sm font-medium mb-1">
@@ -218,13 +294,15 @@ const ContactPage: React.FC = () => {
           )}
         </div>
 
-        {/* CAPTCHA placeholder – we'll replace this with a real widget next */}
-        <div className="rounded-md border border-dashed border-neutral-300 dark:border-neutral-700 p-4">
-          <p className="text-xs text-neutral-600 dark:text-neutral-400">
-            {/* Important: here we'll render the actual CAPTCHA component later. */}
-            {t("form.captcha_placeholder")}
-          </p>
-        </div>
+        {/* reCAPTCHA v2 widget */}
+        {siteKey && (
+          <div>
+            <div ref={recaptchaContainerRef} id="recaptcha-container" className="mb-2" />
+            {errors.captcha && (
+              <p className="text-xs text-red-600">{errors.captcha}</p>
+            )}
+          </div>
+        )}
 
         {/* Submit */}
         <div className="pt-2">
