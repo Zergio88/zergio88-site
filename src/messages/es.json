@@ -60,6 +60,18 @@
     "title": "Sobre mí",
     "description": "Información sobre mí aquí.[en progreso]"
   },
+  "aboutPage": {
+    "labels": {
+      "role": "Rol",
+      "location": "Ubicación",
+      "availability": "Disponibilidad",
+      "technologies": "Tecnologías",
+      "experience": "Experiencia y estudios",
+      "contacts": "Contacto",
+      "principles": "Principios de ingeniería",
+      "featured": "Destacados"
+    }
+  },
   "cube": {
     "front": "Java",
     "right": "C++",

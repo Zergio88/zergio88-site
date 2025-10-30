@@ -46,6 +46,71 @@ export type PostDetail = PostSummary & {
   publishedAt?: string | null
 }
 
+// ABOUT types
+export type AboutPrinciple = {
+  title: string
+  description?: PortableTextBlock[] | null
+}
+
+export type AboutSkill = {
+  name: string
+  category?: string
+  level?: number
+  icon?: SanityImage
+  url?: string
+}
+
+export type AboutTimelineItem = {
+  title: string
+  organization?: string
+  startDate?: string
+  endDate?: string
+  summary?: PortableTextBlock[] | null
+  tags?: string[]
+}
+
+export type AboutFeaturedPost = {
+  type: 'post'
+  post: {
+    _id: string
+    slug: SanitySlug
+    coverImage?: SanityImage
+    githubUrl?: string
+    title: string
+    description?: string
+  }
+}
+
+export type AboutFeaturedExternal = {
+  type: 'external'
+  title: string
+  summary?: PortableTextBlock[] | null
+  href?: string
+}
+
+export type AboutFeatured = AboutFeaturedPost | AboutFeaturedExternal
+
+export type AboutDoc = {
+  title: string
+  heroTagline?: string
+  portrait?: SanityImage
+  snapshot?: {
+    role?: string
+    location?: string
+    availability?: string
+    contacts?: AboutContact[]
+  }
+  bio?: PortableTextBlock[] | null
+  principles?: AboutPrinciple[]
+  skills?: AboutSkill[]
+  timeline?: AboutTimelineItem[]
+  featured?: AboutFeatured[]
+}
+
+export type AboutContact =
+  | { type: 'link'; label?: string; href?: string }
+  | { type: 'email'; label?: string; address?: string }
+
 function normalizeLocale(locale: string): SupportedLocale {
   const lower = locale.toLowerCase()
   const base = lower.split('-')[0]
@@ -76,6 +141,82 @@ export async function getPosts(locale: string = 'es'): Promise<PostSummary[]> {
   } catch (err) {
     console.error("Sanity: error fetching posts", err) // revisar errores
     return []                                       // evitar que falle la página
+  }
+}
+
+export async function getAbout(locale: string = 'es'): Promise<AboutDoc | null> {
+  const safeLocale = normalizeLocale(locale)
+  const coalesce = (f: string) => buildFallbackCoalesce(f)
+  const query = `*[_type == "about" && _id == "about"][0]{
+    "title": ${coalesce('title')},
+    "heroTagline": ${coalesce('heroTagline')},
+    portrait{
+      ..., 
+      asset->{url, metadata{dimensions{width, height}}}
+    },
+    snapshot{
+      "role": ${coalesce('role')},
+      "location": ${coalesce('location')},
+      "availability": ${coalesce('availability')},
+      contacts[]{
+        _type == 'email' => {
+          "type": 'email',
+          "label": ${coalesce('label')},
+          address
+        },
+        _type == 'emailContact' => {
+          "type": 'email',
+          "label": ${coalesce('label')},
+          address
+        },
+        _type == 'link' => {
+          "type": 'link',
+          "label": ${coalesce('label')},
+          href
+        }
+      }
+    },
+    "bio": ${coalesce('bio')},
+    principles[]{
+      "title": ${coalesce('title')},
+      "description": ${coalesce('description')}
+    },
+    skills[]{name, category, level, icon, url},
+    timeline[]{
+      "title": ${coalesce('title')},
+      organization,
+      startDate,
+      endDate,
+      "summary": ${coalesce('summary')},
+      tags
+    },
+    featured[]{
+      _type == 'reference' => {
+        "type": 'post',
+        "post": @->{
+          _id,
+          slug,
+          coverImage,
+          githubUrl,
+          "title": ${coalesce('title')},
+          "description": ${coalesce('description')}
+        }
+      },
+      _type == 'external' => {
+        "type": 'external',
+        "title": ${coalesce('title')},
+        "summary": ${coalesce('summary')},
+        href
+      }
+    }
+  }`
+  try {
+    const data = await sanityClient.fetch<AboutDoc | null>(query, { locale: safeLocale })
+    console.log('Sanity: getAbout locale=', safeLocale, 'hasAbout=', Boolean(data))
+    return data
+  } catch (err) {
+    console.error('Sanity: error fetching about', err)
+    return null
   }
 }
 
