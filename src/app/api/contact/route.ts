@@ -32,15 +32,16 @@ function isRedisConfigured() {
   return Boolean(process.env.REDIS_URL);
 }
 
-let redisClient: any | null = null;
-async function getRedisClient(): Promise<any> {
+type RedisClient = ReturnType<typeof createClient>;
+let redisClient: RedisClient | null = null;
+async function getRedisClient(): Promise<RedisClient> {
   if (!redisClient) {
     const client = createClient({ url: process.env.REDIS_URL });
     client.on("error", (err) => console.error("Redis Client Error", err));
     await client.connect();
     redisClient = client;
   }
-  return redisClient;
+  return redisClient!;
 }
 
 function resetFallbackIfNewMonth() {
@@ -79,7 +80,15 @@ async function incrementMonthlyCount(monthKey: string): Promise<number> {
   return fallbackCounter.count;
 }
 
-function validate(body: any) {
+type ContactBody = {
+  name?: string;
+  email?: string;
+  subject?: string;
+  message?: string;
+  captchaToken?: string;
+};
+
+function validate(body: ContactBody) {
   const errors: Record<string, string> = {};
   if (!body?.name || typeof body.name !== "string" || !body.name.trim()) errors.name = "name_required";
   if (body?.name && String(body.name).length > MAX_FIELD.name) errors.name = "name_too_long";
@@ -139,11 +148,11 @@ export async function POST(req: Request) {
   }
 
   try {
-    const data = await req.json();
+  const data: unknown = await req.json();
 
     // Verify reCAPTCHA token before proceeding
-    const ip = (req.headers.get("x-forwarded-for") || "").split(",")[0]?.trim() || undefined;
-    const captchaToken: string | undefined = data?.captchaToken;
+  const ip = (req.headers.get("x-forwarded-for") || "").split(",")[0]?.trim() || undefined;
+  const captchaToken = typeof (data as ContactBody)?.captchaToken === 'string' ? (data as ContactBody).captchaToken : undefined;
     const minScore = parseFloat(process.env.RECAPTCHA_MIN_SCORE || "0.5");
     if (!captchaToken) {
       return NextResponse.json({ ok: false, reason: "captcha" }, { status: 400 });
@@ -159,48 +168,54 @@ export async function POST(req: Request) {
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: params,
     });
-    const verifyJson: any = await verifyRes.json().catch(() => ({}));
-    const ok = verifyJson?.success === true && (verifyJson?.score ?? 1) >= minScore;
+    type RecaptchaVerifyResponse = { success?: boolean; score?: number };
+    const verifyJson: unknown = await verifyRes.json().catch(() => ({}));
+    const ok = typeof verifyJson === 'object' && verifyJson !== null
+      ? ((verifyJson as RecaptchaVerifyResponse).success === true && (((verifyJson as RecaptchaVerifyResponse).score ?? 1) >= minScore))
+      : false;
     if (!ok) {
       return NextResponse.json({ ok: false, reason: "captcha" }, { status: 400 });
     }
 
-    const errors = validate(data);
+  const errors = validate(data as ContactBody);
     if (Object.keys(errors).length) {
       return NextResponse.json({ ok: false, errors }, { status: 400 });
     }
 
-    const subject = data.subject?.trim()
-      ? `[Contacto] ${data.subject.trim()}`
-      : `[Contacto] Nuevo mensaje de ${data.name}`;
+    const subjVal = (data as ContactBody).subject;
+    const subject = (typeof subjVal === 'string' && subjVal.trim())
+      ? `[Contacto] ${subjVal.trim()}`
+      : `[Contacto] Nuevo mensaje de ${(data as ContactBody).name}`;
 
     const html = `
       <div>
-        <p><strong>Nombre:</strong> ${escapeHtml(data.name)}</p>
-        <p><strong>Email:</strong> ${escapeHtml(data.email)}</p>
-        <p><strong>Asunto:</strong> ${escapeHtml(data.subject || "(sin asunto)")}</p>
+        <p><strong>Nombre:</strong> ${escapeHtml((data as ContactBody).name ?? "")}</p>
+        <p><strong>Email:</strong> ${escapeHtml((data as ContactBody).email ?? "")}</p>
+        <p><strong>Asunto:</strong> ${escapeHtml(((data as ContactBody).subject || "(sin asunto)"))}</p>
         <p><strong>Mensaje:</strong></p>
-        <pre style="white-space:pre-wrap;font-family:system-ui;">${escapeHtml(data.message)}</pre>
+        <pre style="white-space:pre-wrap;font-family:system-ui;">${escapeHtml((data as ContactBody).message ?? "")}</pre>
       </div>
     `;
 
-    const res = await resend.emails.send({
+    const emailOptions: Record<string, unknown> = {
       from,
       to,
       subject,
       html,
-      reply_to: data.email,
-    } as any);
+      reply_to: (data as ContactBody).email,
+    };
+  const send = resend.emails.send as unknown as (o: unknown) => Promise<unknown>;
+  const res: unknown = await send(emailOptions);
 
-    if ((res as any)?.error) {
-      return NextResponse.json({ ok: false, error: (res as any).error }, { status: 502 });
+    if (typeof res === 'object' && res !== null && 'error' in res && (res as { error?: unknown }).error) {
+      return NextResponse.json({ ok: false, error: (res as { error?: unknown }).error }, { status: 502 });
     }
 
   // Count only successful sends
   const newCount = await incrementMonthlyCount(monthKey);
 
   return NextResponse.json({ ok: true, month: monthKey, count: newCount, limit });
-  } catch (e) {
+  } catch (_e) {
     return NextResponse.json({ ok: false }, { status: 500 });
   }
 }

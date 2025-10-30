@@ -81,7 +81,7 @@ function MarqueeRow({ items, height, duration, direction, reduced }: { items: Ab
         </div>
       </div>
       {/* Track B (offset) */}
-      <div className="absolute top-0 h-full flex items-center" style={{ left: direction === 'left' ? '100%' as any : '-100%' as any, animation: `${animationName} ${duration}s linear infinite` }}>
+      <div className="absolute top-0 h-full flex items-center" style={{ left: direction === 'left' ? '100%' : '-100%', animation: `${animationName} ${duration}s linear infinite` }}>
         <div className="flex items-center">
           {seq.map((s, idx) => (
             <SkillPill key={`b-${s.name}-${idx}`} skill={s} height={height} />

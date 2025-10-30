@@ -45,7 +45,7 @@ export default async function AboutPage(props: Props) {
           {about.portrait?.asset && (
             <div className="justify-self-end w-full max-w-[380px]">
               {(() => {
-                const dims = (about.portrait as any)?.asset?.metadata?.dimensions
+                const dims = (about.portrait?.asset as { metadata?: { dimensions?: { width?: number; height?: number } } } | undefined)?.metadata?.dimensions;
                 const w = dims?.width || 4
                 const h = dims?.height || 5
                 const aspect = w / h
@@ -53,7 +53,7 @@ export default async function AboutPage(props: Props) {
                   <div className="relative rounded-lg overflow-hidden bg-neutral-900/60 shadow-lg" style={{ aspectRatio: aspect }}>
                     <Image
                       src={urlFor(about.portrait).width(800).auto('format').fit('clip').url()}
-                      alt={(about.portrait as any)?.alt || "Portrait"}
+                      alt={"Portrait"}
                       fill
                       className="object-contain"
                       priority

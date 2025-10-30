@@ -31,7 +31,7 @@ const ContactPage: React.FC = () => {
   useEffect(() => {
     if (!siteKey) return;
     const init = () => {
-      const g = (globalThis as any).grecaptcha;
+      const g = typeof window !== 'undefined' ? window.grecaptcha : undefined;
       if (!g) return;
       if (captchaWidgetId !== null) return; // already rendered in this lifecycle
       const container = recaptchaContainerRef.current;
@@ -57,14 +57,18 @@ const ContactPage: React.FC = () => {
     };
 
     // If grecaptcha already loaded, init immediately; otherwise set onload handler once
-    const g = (globalThis as any).grecaptcha;
+    const g = typeof window !== 'undefined' ? window.grecaptcha : undefined;
     if (g) {
       init();
     } else {
-      (globalThis as any).onRecaptchaLoad = () => init();
+      if (typeof window !== 'undefined') {
+        window.onRecaptchaLoad = () => init();
+      }
     }
     return () => {
-      (globalThis as any).onRecaptchaLoad = undefined;
+      if (typeof window !== 'undefined') {
+        window.onRecaptchaLoad = undefined;
+      }
     };
   }, [siteKey, captchaWidgetId]);
 
@@ -135,7 +139,7 @@ const ContactPage: React.FC = () => {
       setForm({ name: "", email: "", subject: "", message: "" });
       // Reset captcha widget for a new submission cycle
       try {
-        const g = (globalThis as any).grecaptcha;
+        const g = typeof window !== 'undefined' ? window.grecaptcha : undefined;
         if (g && captchaWidgetId !== null) {
           g.reset(captchaWidgetId);
         }
