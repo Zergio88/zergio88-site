@@ -22,7 +22,37 @@
   },
   "contact": {
     "title": "Contact",
-    "description": "Form or contact information. [in progress]"
+    "description": "I'd love to hear from you. Send a quick message and I'll get back to you.",
+    "links": {
+      "title": "Connect",
+      "linkedin": "LinkedIn",
+      "github": "GitHub",
+      "email": "Email"
+    },
+    "form": {
+      "name": "Name",
+      "email": "Email",
+      "subject": "Subject (optional)",
+      "message": "Message",
+      "submit": "Send message",
+      "sending": "Sending...",
+      "success": "Thanks! Your message has been sent.",
+      "error": "Sorry, something went wrong. Please try again.",
+      "captcha_placeholder": "CAPTCHA will appear here soon to keep bots away.",
+      "limit_reached": "We've reached the monthly email limit. Please use the social links above to contact me this month."
+    },
+    "placeholders": {
+      "name": "e.g. Juan Perez",
+      "email": "you@example.com",
+      "subject": "What do you want to talk about?",
+      "message": "Write your message here..."
+    },
+    "validation": {
+      "name_required": "Name is required",
+      "email_required": "Email is required",
+      "email_invalid": "Please enter a valid email",
+      "message_required": "Message is required"
+    }
   },
   "about": {
     "title": "About me",

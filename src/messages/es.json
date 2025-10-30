@@ -22,7 +22,37 @@
   },
   "contact": {
     "title": "Contacto",
-    "description": "Formulario o información de contacto [en progreso]."
+    "description": "Si tienes alguna pregunta o te gustaría discutir oportunidades, no dudes en ponerte en contacto conmigo. Estaré encantado de responderte.",
+    "form": {
+      "name": "Nombre",
+      "email": "Correo electrónico",
+      "subject": "Asunto (opcional)",
+      "message": "Mensaje",
+      "submit": "Enviar mensaje",
+      "sending": "Enviando...",
+      "success": "¡Gracias! Tu mensaje fue enviado.",
+      "error": "Ups, algo salió mal. Intenta nuevamente, por favor.",
+      "captcha_placeholder": "Aquí agregaremos el CAPTCHA para evitar bots.",
+      "limit_reached": "Se alcanzó el límite mensual de correos. Usa las opciones de contacto de arriba para escribirme este mes."
+    },
+    "links": {
+      "title": "Conecta",
+      "linkedin": "LinkedIn",
+      "github": "GitHub",
+      "email": "Correo"
+    },
+    "placeholders": {
+      "name": "Ej: Juan Pérez",
+      "email": "tu@ejemplo.com",
+      "subject": "¿Sobre qué te gustaría hablar?",
+      "message": "Escribe tu mensaje aquí..."
+    },
+    "validation": {
+      "name_required": "El nombre es obligatorio",
+      "email_required": "El correo es obligatorio",
+      "email_invalid": "Ingresa un correo válido",
+      "message_required": "El mensaje es obligatorio"
+    }
   },
   "about": {
     "title": "Sobre mí",
