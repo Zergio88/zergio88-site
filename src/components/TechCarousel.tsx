@@ -1,92 +1,36 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { urlFor, type AboutSkill } from "@/lib/sanity";
 
 type Props = {
   skills: AboutSkill[];
-  rowHeight?: number; // px
-  duration?: number; // seconds per loop
+  rowHeight?: number; // unused in static mode but kept for API compatibility
+  duration?: number;  // unused in static mode but kept for API compatibility
 };
 
-export default function TechCarousel({ skills, rowHeight = 56, duration = 22 }: Props) {
-  const [reduced, setReduced] = useState(false);
-  const items = useMemo(() => skills.filter((s) => s.icon?.asset), [skills]);
-
-  useEffect(() => {
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const handler = () => setReduced(mq.matches);
-    handler();
-    mq.addEventListener?.("change", handler);
-    return () => mq.removeEventListener?.("change", handler);
-  }, []);
+// Static, robust rendering: responsive grid of skill pills (no animation)
+export default function TechCarousel({ skills }: Props) {
+  const items = useMemo(() => {
+    // keep only those with icon and dedupe by name
+    const withIcon = skills.filter((s) => s.icon?.asset);
+    const map = new Map<string, AboutSkill>();
+    for (const s of withIcon) {
+      const key = (s.name || "").toLowerCase().trim();
+      if (key && !map.has(key)) map.set(key, s);
+    }
+    return Array.from(map.values());
+  }, [skills]);
 
   if (!items.length) return null;
 
-  // Split items into two rows for a more premium look
-  const rowA = items.filter((_, i) => i % 2 === 0);
-  const rowB = items.filter((_, i) => i % 2 === 1);
-
   return (
-    <div className="rounded-md border border-neutral-800 bg-neutral-950/40 p-3 space-y-4 mask">
-      <MarqueeRow items={rowA} height={rowHeight} duration={duration} direction="left" reduced={reduced} />
-      {rowB.length > 0 && (
-        <MarqueeRow items={rowB} height={rowHeight} duration={duration + 4} direction="right" reduced={reduced} />
-      )}
-      {reduced && (
-        <p className="text-xs text-gray-500">Animaciones reducidas por preferencia del sistema.</p>
-      )}
-      <style jsx>{`
-        .mask {
-          mask-image: linear-gradient(90deg, transparent 0%, black 8%, black 92%, transparent 100%);
-          -webkit-mask-image: linear-gradient(90deg, transparent 0%, black 8%, black 92%, transparent 100%);
-        }
-        @keyframes scroll-left {
-          from { transform: translateX(0); }
-          to { transform: translateX(-100%); }
-        }
-        @keyframes scroll-right {
-          from { transform: translateX(0); }
-          to { transform: translateX(100%); }
-        }
-      `}</style>
-    </div>
-  );
-}
-
-function MarqueeRow({ items, height, duration, direction, reduced }: { items: AboutSkill[]; height: number; duration: number; direction: 'left' | 'right'; reduced: boolean; }) {
-  const seq = [...items];
-  const animationName = direction === 'left' ? 'scroll-left' : 'scroll-right';
-  const containerStyle = { height: height + 12 } as React.CSSProperties;
-  if (reduced) {
-    return (
-      <div className="overflow-x-auto whitespace-nowrap" style={containerStyle}>
-        <div className="inline-flex items-center">
-          {seq.map((s, idx) => (
-            <SkillPill key={`${s.name}-${idx}`} skill={s} height={height} />
-          ))}
-        </div>
-      </div>
-    );
-  }
-  return (
-    <div className="relative overflow-hidden" style={containerStyle}>
-      {/* Track A */}
-      <div className="absolute left-0 top-0 h-full flex items-center" style={{ animation: `${animationName} ${duration}s linear infinite` }}>
-        <div className="flex items-center">
-          {seq.map((s, idx) => (
-            <SkillPill key={`a-${s.name}-${idx}`} skill={s} height={height} />
-          ))}
-        </div>
-      </div>
-      {/* Track B (offset) */}
-      <div className="absolute top-0 h-full flex items-center" style={{ left: direction === 'left' ? '100%' : '-100%', animation: `${animationName} ${duration}s linear infinite` }}>
-        <div className="flex items-center">
-          {seq.map((s, idx) => (
-            <SkillPill key={`b-${s.name}-${idx}`} skill={s} height={height} />
-          ))}
-        </div>
+    <div className="rounded-md border border-neutral-800 bg-neutral-950/40 p-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+        {items.map((s, idx) => (
+          <SkillPill key={`${s.name}-${idx}`} skill={s} height={48} />
+        ))}
       </div>
     </div>
   );
@@ -96,7 +40,7 @@ function SkillPill({ skill, height }: { skill: AboutSkill; height: number }) {
   const href = skill.url;
   const content = (
     <div
-      className="flex items-center gap-2 px-3 mx-1 rounded-full border border-neutral-800 bg-neutral-900/60 hover:border-emerald-600/50 transition-colors"
+      className="group flex items-center gap-2 px-3 mx-1 rounded-full border border-neutral-800 bg-neutral-900/60 hover:bg-neutral-900/80 hover:border-emerald-500/50 transition hover:-translate-y-px"
       style={{ height }}
     >
       {skill.icon?.asset && (
@@ -119,7 +63,7 @@ function SkillPill({ skill, height }: { skill: AboutSkill; height: number }) {
         target="_blank"
         rel="noreferrer noopener"
         aria-label={skill.name || "skill"}
-        className="no-underline"
+        className="group no-underline cursor-pointer"
       >
         {content}
       </a>

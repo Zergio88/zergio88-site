@@ -113,22 +113,42 @@ function escapeHtml(str: string) {
 }
 
 export async function POST(req: Request) {
-  // Ensure env is configured
+  // Ensure env is configured (allow graceful bypass in development)
   const apiKey = process.env.RESEND_API_KEY;
   const from = process.env.RESEND_FROM;
   const to = process.env.RESEND_TO;
   const recaptchaSecret = process.env.RECAPTCHA_SECRET_KEY;
+  const isProd = process.env.NODE_ENV === 'production';
   if (!apiKey || !from || !to) {
-    return NextResponse.json(
-      { ok: false, error: "misconfigured" },
-      { status: 500 }
-    );
+    if (isProd) {
+      return NextResponse.json(
+        { ok: false, error: "misconfigured" },
+        { status: 500 }
+      );
+    } else {
+      // In development, short-circuit successfully so you can test the form UX without email setup
+      const data: unknown = await req.json().catch(() => ({}));
+      const v = validate(data as ContactBody);
+      if (Object.keys(v).length) {
+        return NextResponse.json({ ok: false, errors: v }, { status: 400 });
+      }
+      return NextResponse.json({ ok: true, dev: true, reason: "email_disabled" });
+    }
   }
   if (!recaptchaSecret) {
-    return NextResponse.json(
-      { ok: false, error: "captcha_misconfigured" },
-      { status: 500 }
-    );
+    if (isProd) {
+      return NextResponse.json(
+        { ok: false, error: "captcha_misconfigured" },
+        { status: 500 }
+      );
+    } else {
+      const data: unknown = await req.json().catch(() => ({}));
+      const v = validate(data as ContactBody);
+      if (Object.keys(v).length) {
+        return NextResponse.json({ ok: false, errors: v }, { status: 400 });
+      }
+      return NextResponse.json({ ok: true, dev: true, reason: "captcha_disabled" });
+    }
   }
 
   // Guard against overly large payloads before parsing JSON
@@ -139,12 +159,14 @@ export async function POST(req: Request) {
 
   const monthKey = getMonthKey();
   const limit = parseInt(process.env.RESEND_MONTHLY_LIMIT || String(DEFAULT_MONTHLY_LIMIT), 10);
-  const current = await getMonthlyCount(monthKey);
-  if (current >= limit) {
-    return NextResponse.json(
-      { ok: false, reason: "limit", month: monthKey, limit },
-      { status: 429 }
-    );
+  if (isProd) {
+    const current = await getMonthlyCount(monthKey);
+    if (current >= limit) {
+      return NextResponse.json(
+        { ok: false, reason: "limit", month: monthKey, limit },
+        { status: 429 }
+      );
+    }
   }
 
   try {
@@ -163,13 +185,21 @@ export async function POST(req: Request) {
     params.append("response", captchaToken);
     if (ip) params.append("remoteip", ip);
 
-    const verifyRes = await fetch("https://www.google.com/recaptcha/api/siteverify", {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: params,
-    });
-    type RecaptchaVerifyResponse = { success?: boolean; score?: number };
-    const verifyJson: unknown = await verifyRes.json().catch(() => ({}));
+  type RecaptchaVerifyResponse = { success?: boolean; score?: number };
+  let verifyJson: unknown = {};
+    try {
+      const verifyRes = await fetch("https://www.google.com/recaptcha/api/siteverify", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: params,
+      });
+      verifyJson = await verifyRes.json().catch(() => ({}));
+    } catch (e) {
+      if (process.env.NODE_ENV !== 'production') {
+        console.error('[contact] reCAPTCHA verify fetch failed', e);
+      }
+      return NextResponse.json({ ok: false, reason: "captcha_network" }, { status: 400 });
+    }
     const ok = typeof verifyJson === 'object' && verifyJson !== null
       ? ((verifyJson as RecaptchaVerifyResponse).success === true && (((verifyJson as RecaptchaVerifyResponse).score ?? 1) >= minScore))
       : false;
@@ -196,26 +226,46 @@ export async function POST(req: Request) {
         <pre style="white-space:pre-wrap;font-family:system-ui;">${escapeHtml((data as ContactBody).message ?? "")}</pre>
       </div>
     `;
+    const text = `Nombre: ${(data as ContactBody).name ?? ""}\nEmail: ${(data as ContactBody).email ?? ""}\nAsunto: ${(data as ContactBody).subject ?? "(sin asunto)"}\nMensaje:\n${(data as ContactBody).message ?? ""}`;
 
     const emailOptions: Record<string, unknown> = {
       from,
       to,
       subject,
       html,
+      text,
       reply_to: (data as ContactBody).email,
     };
-  const send = resend.emails.send as unknown as (o: unknown) => Promise<unknown>;
-  const res: unknown = await send(emailOptions);
-
-    if (typeof res === 'object' && res !== null && 'error' in res && (res as { error?: unknown }).error) {
-      return NextResponse.json({ ok: false, error: (res as { error?: unknown }).error }, { status: 502 });
+    try {
+      type EmailSendArgs = {
+        from: string;
+        to: string | string[];
+        subject: string;
+        html?: string;
+        text: string;
+        reply_to?: string;
+      };
+      const res: unknown = await resend.emails.send(emailOptions as EmailSendArgs);
+      if (typeof res === 'object' && res !== null && 'error' in res && (res as { error?: unknown }).error) {
+        if (process.env.NODE_ENV !== 'production') {
+          console.error('[contact] Resend responded with error', (res as { error?: unknown }).error);
+        }
+        return NextResponse.json({ ok: false, reason: 'email', error: (res as { error?: unknown }).error }, { status: 502 });
+      }
+    } catch (e) {
+      if (process.env.NODE_ENV !== 'production') {
+        console.error('[contact] Resend send failed', e);
+      }
+      return NextResponse.json({ ok: false, reason: 'email' }, { status: 502 });
     }
 
   // Count only successful sends
-  const newCount = await incrementMonthlyCount(monthKey);
-
+  const newCount = isProd ? await incrementMonthlyCount(monthKey) : 0;
   return NextResponse.json({ ok: true, month: monthKey, count: newCount, limit });
-  } catch (_e) {
-    return NextResponse.json({ ok: false }, { status: 500 });
+  } catch (e) {
+    if (process.env.NODE_ENV !== 'production') {
+      console.error('[contact] unhandled error', e);
+    }
+    return NextResponse.json({ ok: false, reason: 'unhandled' }, { status: 500 });
   }
 }
