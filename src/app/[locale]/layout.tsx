@@ -1,4 +1,5 @@
 import {ReactNode} from 'react';
+import type { Metadata } from 'next';
 import {Analytics} from '@vercel/analytics/react';
 import Navbar from '@/components/NavBar';
 import {hasLocale, NextIntlClientProvider} from 'next-intl';
@@ -39,4 +40,23 @@ export default async function LocaleLayout({children, params}: Props) {
       </body>
     </html>
   );
+}
+
+// Dynamic, localized metadata for all routes under this locale segment
+export async function generateMetadata(
+  { params }: Props
+): Promise<Metadata> {
+  const { locale } = await params;
+  // Load localized messages to set a localized default (home) title
+  const messages = (await import(`@/messages/${locale}.json`)).default as { meta?: { home?: string } };
+  const homeTitle: string = messages?.meta?.home
+    ?? (locale === 'es' ? 'Portafolio' : locale === 'pt' ? 'Portfólio' : 'Portfolio');
+
+  return {
+    title: {
+      template: 'zergio88 - %s',
+      // Ensure home also shows the brand prefix
+      default: `zergio88 - ${homeTitle}`
+    }
+  };
 }

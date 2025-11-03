@@ -151,3 +151,16 @@ export async function generateStaticParams() {
     validSlugs.map((post) => ({ locale, slug: post.slug.current }))
   );
 }
+
+// Set dynamic, localized page title based on the project title
+export async function generateMetadata({ params }: PageProps) {
+  const { locale, slug } = await params;
+  const post = await getPostBySlug(slug, locale);
+  // Fall back to the section title if not found
+  if (!post) {
+    const messages = (await import(`@/messages/${locale}.json`)).default as { projectss?: { title?: string } };
+    const fallback = messages?.projectss?.title ?? 'Projects';
+    return { title: fallback };
+  }
+  return { title: post.title };
+}

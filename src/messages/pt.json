@@ -1,4 +1,7 @@
 {
+  "meta": {
+    "home": "Portfólio"
+  },
   "navbar": {
     "about": "Sobre mim",
     "projects": "Projetos",
