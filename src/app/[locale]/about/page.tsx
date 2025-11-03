@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { PortableText } from "@portabletext/react";
+import { PortableText, type PortableTextComponents } from "@portabletext/react";
 import { getTranslations } from "next-intl/server";
 import { getAbout, urlFor, type AboutDoc, type AboutSkill, type AboutTimelineItem, type AboutFeatured, type AboutFeaturedPost, type AboutFeaturedExternal } from "@/lib/sanity";
 import TechCarousel from "@/components/TechCarousel";
@@ -20,6 +20,54 @@ export default async function AboutPage(props: Props) {
     );
   }
 
+  const portableComponents: PortableTextComponents = {
+    block: {
+      normal: ({ children }) => (
+        <p className="my-5 leading-relaxed text-gray-200">{children}</p>
+      ),
+      h2: ({ children }) => (
+        <h2 className="mt-10 text-2xl font-semibold text-white">{children}</h2>
+      ),
+      h3: ({ children }) => (
+        <h3 className="mt-8 text-xl font-semibold text-white">{children}</h3>
+      ),
+      blockquote: ({ children }) => (
+        <blockquote className="my-6 border-l-4 border-white/30 pl-4 italic text-gray-200">
+          {children}
+        </blockquote>
+      ),
+    },
+    list: {
+      bullet: ({ children }) => (
+        <ul className="my-4 ml-6 list-disc space-y-2 text-gray-200">{children}</ul>
+      ),
+      number: ({ children }) => (
+        <ol className="my-4 ml-6 list-decimal space-y-2 text-gray-200">{children}</ol>
+      ),
+    },
+    listItem: {
+      bullet: ({ children }) => <li className="pl-2">{children}</li>,
+      number: ({ children }) => <li className="pl-2">{children}</li>,
+    },
+    marks: {
+      link: ({ children, value }) => (
+        <a
+          href={(value as { href?: string })?.href ?? "#"}
+          target="_blank"
+          rel="noreferrer noopener"
+          className="font-medium text-emerald-400 underline decoration-emerald-400/40 underline-offset-4 hover:text-emerald-300"
+        >
+          {children}
+        </a>
+      ),
+      strong: ({ children }) => <strong className="text-white">{children}</strong>,
+      em: ({ children }) => <em className="text-gray-200">{children}</em>,
+      underline: ({ children }) => (
+        <span className="underline underline-offset-4">{children}</span>
+      ),
+    },
+  };
+
   return (
     <div className="mx-auto max-w-6xl px-6 py-12 space-y-12">
       {/* Header: title + tagline (full width) */}
@@ -37,8 +85,8 @@ export default async function AboutPage(props: Props) {
         <section className="grid gap-8 md:grid-cols-[1fr_360px] items-start">
           <div>
             {about.bio && about.bio.length > 0 && (
-              <div className="prose prose-invert max-w-none">
-                <PortableText value={about.bio} />
+              <div className="max-w-none">
+                <PortableText value={about.bio} components={portableComponents} />
               </div>
             )}
           </div>
