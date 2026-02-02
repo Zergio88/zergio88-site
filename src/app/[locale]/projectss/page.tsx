@@ -35,7 +35,7 @@ export default function ProjectsPage() {
       <p className="mb-8">{t("description")}</p>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-        {posts.map((post) => (
+        {posts.filter((p) => !!p.slug?.current).map((post) => (
           <Link
             key={post._id}
             href={`/${locale}/projectss/${post.slug.current}`}

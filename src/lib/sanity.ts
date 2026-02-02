@@ -125,7 +125,7 @@ function buildFallbackCoalesce(field: string) {
 
 export async function getPosts(locale: string = 'es'): Promise<PostSummary[]> {
   const safeLocale = normalizeLocale(locale)
-  const query = `*[_type == "post"]|order(publishedAt desc){
+  const query = `*[_type == "post" && defined(slug.current)]|order(publishedAt desc){
     _id,
     slug,
     githubUrl,
