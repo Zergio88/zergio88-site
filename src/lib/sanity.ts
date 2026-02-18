@@ -32,6 +32,33 @@ type SanityImage = {
   [key: string]: unknown
 }
 
+// ── ImageGallery types ──────────────────────────────────────────────────────
+
+export type SanityImageAsset = {
+  url: string
+  metadata?: {
+    dimensions?: {
+      width: number
+      height: number
+    }
+  }
+}
+
+export type SanityGalleryImage = {
+  _key?: string
+  alt?: string
+  hotspot?: { x: number; y: number; width: number; height: number }
+  crop?: { top: number; bottom: number; left: number; right: number }
+  asset?: SanityImageAsset
+}
+
+export type ImageGalleryPortableTextItem = {
+  _type: 'imageGallery'
+  _key?: string
+  layout: 'two-column' | 'single-column'
+  images: SanityGalleryImage[]
+}
+
 export type PostSummary = {
   _id: string
   slug: SanitySlug
@@ -42,7 +69,7 @@ export type PostSummary = {
 }
 
 export type PostDetail = PostSummary & {
-  content?: PortableTextBlock[] | null
+  content?: Array<PortableTextBlock | ImageGalleryPortableTextItem> | null
   publishedAt?: string | null
 }
 
@@ -222,14 +249,31 @@ export async function getAbout(locale: string = 'es'): Promise<AboutDoc | null> 
 
 export async function getPostBySlug(slug: string, locale: string = 'es'): Promise<PostDetail | null> {
   const safeLocale = normalizeLocale(locale)
+  // Build a locale-fallback expression for content with full imageGallery asset expansion
+  const contentFallbacks = FALLBACK_LOCALES.map((l) => `content.${l}`).join(', ')
+  const contentProjection = `coalesce(content[$locale], ${contentFallbacks})[]{
+    ...,
+    _type == "imageGallery" => {
+      _type,
+      _key,
+      layout,
+      "images": images[]{
+        _key,
+        alt,
+        hotspot,
+        crop,
+        "asset": asset->{url, metadata{dimensions{width, height}}}
+      }
+    }
+  }`
   const query = `*[_type == "post" && slug.current == $slug][0]{
     _id,
     "title": ${buildFallbackCoalesce('title')},
     slug,
     githubUrl,
     coverImage,
-  "description": ${buildFallbackCoalesce('description')},
-  "content": ${buildFallbackCoalesce('content')},
+    "description": ${buildFallbackCoalesce('description')},
+    "content": ${contentProjection},
     publishedAt
   }`
   try {

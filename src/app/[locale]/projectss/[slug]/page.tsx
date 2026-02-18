@@ -7,7 +7,9 @@ import {
   type PortableTextMarkComponentProps,
 } from '@portabletext/react';
 import { getPostBySlug, getPosts, urlFor } from '@/lib/sanity';
+import type { ImageGalleryPortableTextItem } from '@/lib/sanity';
 import type { SanityImageSource } from '@sanity/image-url/lib/types/types';
+import ImageGallery from '@/components/ImageGallery';
 import { routing } from '@/i18n/routing';
 
 type PageProps = {
@@ -23,6 +25,15 @@ type PortableImageValue = SanityImageSource & {
 
 const portableTextComponents: PortableTextComponents = {
   types: {
+    imageGallery: ({ value }: { value: ImageGalleryPortableTextItem }) => {
+      if (!value?.images?.length) return null
+      return (
+        <ImageGallery
+          layout={value.layout ?? 'single-column'}
+          images={value.images}
+        />
+      )
+    },
     image: ({ value }: { value: PortableImageValue }) => {
       if (!value || typeof value === 'string' || !('asset' in value)) return null;
       return (
