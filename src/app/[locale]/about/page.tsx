@@ -2,14 +2,43 @@ import Image from "next/image";
 import { PortableText, type PortableTextComponents } from "@portabletext/react";
 import { getTranslations } from "next-intl/server";
 import { getAbout, urlFor, type AboutDoc, type AboutSkill, type AboutTimelineItem, type AboutFeatured, type AboutFeaturedPost, type AboutFeaturedExternal } from "@/lib/sanity";
+import AboutTerminal from "@/components/AboutTerminal";
 import TechCarousel from "@/components/TechCarousel";
 
 type Props = { params: Promise<{ locale: string }> };
+
+type PortableTextSpan = {
+  _type?: string;
+  text?: string;
+};
+
+type PortableTextBlockLike = {
+  _type?: string;
+  children?: PortableTextSpan[];
+};
+
+function extractPlainTextLines(blocks: PortableTextBlockLike[] | null | undefined): string[] {
+  if (!blocks || blocks.length === 0) {
+    return [];
+  }
+
+  return blocks
+    .filter((block) => block?._type === "block")
+    .map((block) =>
+      (block.children ?? [])
+        .map((child) => child.text ?? "")
+        .join("")
+        .replace(/\s+/g, " ")
+        .trim()
+    )
+    .filter(Boolean);
+}
 
 export default async function AboutPage(props: Props) {
   const { locale } = await props.params;
   const t = await getTranslations("aboutPage.labels");
   const about: AboutDoc | null = await getAbout(locale);
+  const bioLines = extractPlainTextLines(about?.bio as PortableTextBlockLike[] | null | undefined);
 
   if (!about) {
     return (
@@ -69,44 +98,50 @@ export default async function AboutPage(props: Props) {
   };
 
   return (
-    <div className="mx-auto max-w-6xl px-6 py-12 space-y-12">
+    <div className="mx-auto max-w-6xl px-6 pt-8 pb-12 space-y-12">
       {/* Header: title + tagline (full width) */}
       <section>
-        <h1 className="text-4xl font-semibold tracking-tight mb-3">
+        <h1 className="mb-3 text-4xl font-semibold tracking-tight">
           {about.title}
         </h1>
-        {about.heroTagline && (
-          <p className="text-lg text-gray-400 max-w-2xl">{about.heroTagline}</p>
-        )}
       </section>
 
       {/* Bio + Portrait side-by-side on desktop */}
-      {(about.bio?.length || about.portrait?.asset) && (
-        <section className="grid gap-8 md:grid-cols-[1fr_360px] items-start">
-          <div>
-            {about.bio && about.bio.length > 0 && (
-              <div className="max-w-none">
-                <PortableText value={about.bio} components={portableComponents} />
-              </div>
+      {(about.heroTagline || bioLines.length > 0 || about.portrait?.asset) && (
+        <section className="grid gap-8 md:grid-cols-[minmax(0,1fr)_360px] items-start">
+          <div className="min-w-0">
+            {(about.heroTagline || bioLines.length > 0) && (
+              <AboutTerminal
+                locale={locale}
+                title={about.heroTagline || "bash - terminal"}
+                bioLines={bioLines}
+                email="sergiomamani@live.com.ar"
+                githubUrl="https://github.com/Zergio88"
+                linkedinUrl="https://www.linkedin.com/in/sergio-mamani-3405/"
+                projectsHref={`/${locale}/projectss`}
+                contactHref={`/${locale}/contact`}
+              />
             )}
           </div>
           {about.portrait?.asset && (
-            <div className="justify-self-end w-full max-w-[380px]">
+            <div className="mx-auto w-full max-w-80 md:max-w-95 md:justify-self-end">
               {(() => {
                 const dims = (about.portrait?.asset as { metadata?: { dimensions?: { width?: number; height?: number } } } | undefined)?.metadata?.dimensions;
                 const w = dims?.width || 4
                 const h = dims?.height || 5
                 const aspect = w / h
                 return (
-                  <div className="relative rounded-lg overflow-hidden bg-neutral-900/60 shadow-lg" style={{ aspectRatio: aspect }}>
-                    <Image
-                      src={urlFor(about.portrait).width(800).auto('format').fit('clip').url()}
-                      alt={"Portrait"}
-                      fill
-                      className="object-contain"
-                      priority
-                      sizes="(min-width: 768px) 360px, 80vw"
-                    />
+                  <div className="rounded-2xl border border-[#00ff00]/12 bg-[#060806] p-2 shadow-[0_30px_90px_-25px_rgba(0,0,0,0.72)]">
+                    <div className="relative overflow-hidden rounded-xl bg-neutral-900/60" style={{ aspectRatio: aspect }}>
+                      <Image
+                        src={urlFor(about.portrait).width(800).auto('format').fit('clip').url()}
+                        alt={"Portrait"}
+                        fill
+                        className="object-contain"
+                        priority
+                        sizes="(min-width: 768px) 360px, 80vw"
+                      />
+                    </div>
                   </div>
                 )
               })()}

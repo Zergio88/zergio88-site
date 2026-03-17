@@ -151,7 +151,7 @@ const ContactPage: React.FC = () => {
   };
 
   return (
-    <div className="mx-auto max-w-3xl p-6 sm:p-8">
+    <div className="mx-auto max-w-3xl px-6 pt-8 pb-12 sm:px-8">
       {/* reCAPTCHA v2 checkbox script */}
       {siteKey && (
         <Script
@@ -160,7 +160,7 @@ const ContactPage: React.FC = () => {
         />
       )}
       {/* Title and short description */}
-      <h1 className="text-3xl font-bold tracking-tight mb-2">{t("title")}</h1>
+      <h1 className="mb-3 text-4xl font-semibold tracking-tight">{t("title")}</h1>
       <p className="text-neutral-600 dark:text-neutral-300 mb-4">{t("description")}</p>
 
       {/* Social links row: external links open in a new tab; email uses mailto */}
