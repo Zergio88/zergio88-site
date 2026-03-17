@@ -30,8 +30,8 @@ export default function ProjectsPage() {
   if (loading) return <p>Cargando...</p>
 
   return (
-    <div className="p-8">
-      <h1 className="text-3xl font-bold mb-4">{t("title")}</h1>
+    <div className="mx-auto max-w-6xl px-6 pt-8 pb-12">
+      <h1 className="mb-3 text-4xl font-semibold tracking-tight">{t("title")}</h1>
       <p className="mb-8">{t("description")}</p>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
