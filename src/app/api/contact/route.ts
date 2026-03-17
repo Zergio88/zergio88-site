@@ -10,7 +10,15 @@ function getMonthKey(d = new Date()) {
   return `${y}-${m}`; // e.g., 2025-10
 }
 
+function getDayKey(d = new Date()) {
+  const y = d.getUTCFullYear();
+  const m = String(d.getUTCMonth() + 1).padStart(2, "0");
+  const day = String(d.getUTCDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`; // e.g., 2025-10-17
+}
+
 const DEFAULT_MONTHLY_LIMIT = parseInt(process.env.RESEND_MONTHLY_LIMIT || "3000", 10);
+const DEFAULT_DAILY_LIMIT = parseInt(process.env.RESEND_DAILY_LIMIT || "100", 10);
 const MAX_BODY_BYTES = parseInt(process.env.CONTACT_MAX_BODY_BYTES || "51200", 10); // 50KB default
 const MAX_FIELD = {
   name: 80,
@@ -24,6 +32,12 @@ const fallbackCounter: { month: string; count: number; limit: number } = {
   month: getMonthKey(),
   count: 0,
   limit: DEFAULT_MONTHLY_LIMIT,
+};
+
+const fallbackDailyCounter: { day: string; count: number; limit: number } = {
+  day: getDayKey(),
+  count: 0,
+  limit: DEFAULT_DAILY_LIMIT,
 };
 
 const resend = new Resend(process.env.RESEND_API_KEY);
@@ -56,6 +70,18 @@ function resetFallbackIfNewMonth() {
   }
 }
 
+function resetFallbackIfNewDay() {
+  const nowKey = getDayKey();
+  if (fallbackDailyCounter.day !== nowKey) {
+    fallbackDailyCounter.day = nowKey;
+    fallbackDailyCounter.count = 0;
+    fallbackDailyCounter.limit = parseInt(
+      process.env.RESEND_DAILY_LIMIT || String(DEFAULT_DAILY_LIMIT),
+      10
+    );
+  }
+}
+
 async function getMonthlyCount(monthKey: string): Promise<number> {
   if (isRedisConfigured()) {
     const key = `contact:count:${monthKey}`;
@@ -78,6 +104,30 @@ async function incrementMonthlyCount(monthKey: string): Promise<number> {
   resetFallbackIfNewMonth();
   fallbackCounter.count += 1;
   return fallbackCounter.count;
+}
+
+async function getDailyCount(dayKey: string): Promise<number> {
+  if (isRedisConfigured()) {
+    const key = `contact:count:day:${dayKey}`;
+    const client = await getRedisClient();
+    const val = await client.get(key);
+    const num = val ? parseInt(val, 10) : 0;
+    return Number.isFinite(num) ? num : 0;
+  }
+  resetFallbackIfNewDay();
+  return fallbackDailyCounter.count;
+}
+
+async function incrementDailyCount(dayKey: string): Promise<number> {
+  if (isRedisConfigured()) {
+    const key = `contact:count:day:${dayKey}`;
+    const client = await getRedisClient();
+    const newVal = await client.incr(key);
+    return newVal;
+  }
+  resetFallbackIfNewDay();
+  fallbackDailyCounter.count += 1;
+  return fallbackDailyCounter.count;
 }
 
 type ContactBody = {
@@ -158,8 +208,17 @@ export async function POST(req: Request) {
   }
 
   const monthKey = getMonthKey();
+  const dayKey = getDayKey();
   const limit = parseInt(process.env.RESEND_MONTHLY_LIMIT || String(DEFAULT_MONTHLY_LIMIT), 10);
+  const dailyLimit = parseInt(process.env.RESEND_DAILY_LIMIT || String(DEFAULT_DAILY_LIMIT), 10);
   if (isProd) {
+    const todayCurrent = await getDailyCount(dayKey);
+    if (todayCurrent >= dailyLimit) {
+      return NextResponse.json(
+        { ok: false, reason: "daily_limit", day: dayKey, dailyLimit },
+        { status: 429 }
+      );
+    }
     const current = await getMonthlyCount(monthKey);
     if (current >= limit) {
       return NextResponse.json(
@@ -260,8 +319,18 @@ export async function POST(req: Request) {
     }
 
   // Count only successful sends
-  const newCount = isProd ? await incrementMonthlyCount(monthKey) : 0;
-  return NextResponse.json({ ok: true, month: monthKey, count: newCount, limit });
+  const [newDailyCount, newCount] = isProd
+    ? await Promise.all([incrementDailyCount(dayKey), incrementMonthlyCount(monthKey)])
+    : [0, 0];
+  return NextResponse.json({
+    ok: true,
+    day: dayKey,
+    dayCount: newDailyCount,
+    dailyLimit,
+    month: monthKey,
+    count: newCount,
+    limit,
+  });
   } catch (e) {
     if (process.env.NODE_ENV !== 'production') {
       console.error('[contact] unhandled error', e);

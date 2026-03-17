@@ -34,7 +34,7 @@ export default function NavBar() {
             <img
               src="/logo.svg"
               alt="Logo"
-              className="h-10 w-10 md:h-12 md:w-12 border border-white rounded hover:brightness-125 transition duration-300"
+              className="h-10 w-10 md:h-12 md:w-12 border border-white rounded transition duration-300 ease-out hover:-rotate-6 hover:brightness-125"
             />
           </Link>
         </div>
