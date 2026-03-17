@@ -19,6 +19,8 @@ function getDayKey(d = new Date()) {
 
 const DEFAULT_MONTHLY_LIMIT = parseInt(process.env.RESEND_MONTHLY_LIMIT || "3000", 10);
 const DEFAULT_DAILY_LIMIT = parseInt(process.env.RESEND_DAILY_LIMIT || "100", 10);
+const DEFAULT_MONTHLY_TTL_SECONDS = parseInt(process.env.CONTACT_MONTHLY_TTL_SECONDS || String(70 * 24 * 60 * 60), 10);
+const DEFAULT_DAILY_TTL_SECONDS = parseInt(process.env.CONTACT_DAILY_TTL_SECONDS || String(7 * 24 * 60 * 60), 10);
 const MAX_BODY_BYTES = parseInt(process.env.CONTACT_MAX_BODY_BYTES || "51200", 10); // 50KB default
 const MAX_FIELD = {
   name: 80,
@@ -99,6 +101,10 @@ async function incrementMonthlyCount(monthKey: string): Promise<number> {
     const key = `contact:count:${monthKey}`;
     const client = await getRedisClient();
     const newVal = await client.incr(key);
+    // Set TTL only when key is first created by INCR.
+    if (newVal === 1) {
+      await client.expire(key, DEFAULT_MONTHLY_TTL_SECONDS);
+    }
     return newVal;
   }
   resetFallbackIfNewMonth();
@@ -123,6 +129,10 @@ async function incrementDailyCount(dayKey: string): Promise<number> {
     const key = `contact:count:day:${dayKey}`;
     const client = await getRedisClient();
     const newVal = await client.incr(key);
+    // Set TTL only when key is first created by INCR.
+    if (newVal === 1) {
+      await client.expire(key, DEFAULT_DAILY_TTL_SECONDS);
+    }
     return newVal;
   }
   resetFallbackIfNewDay();
