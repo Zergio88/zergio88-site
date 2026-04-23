@@ -25,7 +25,7 @@ export default function NavBar() {
   }
 
   return (
-    <nav className="relative w-full bg-gradient-to-b from-[#0a0a0a] via-[#1a1a1a] to-[#0a0a0a] shadow-md">
+    <nav className="relative w-full bg-linear-to-b from-[#0a0a0a] via-[#1a1a1a] to-[#0a0a0a] shadow-md">
       <div className="flex items-center py-3 md:py-2 px-4">
 
         {/* Logo */}
