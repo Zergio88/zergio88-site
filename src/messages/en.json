@@ -8,9 +8,9 @@
     "contact": "Contact"
   },
   "titles": {
-    "iam":"I am Sergio Mamani",
+    "iam":"My name is Sergio Mamani",
     "dev":"Software Developer",
-    "profession":"Software development with Java and a focus on backend",
+    "profession":"Java Software Developer focused on Backend",
     "enthusiast":"Passionate about learning, technology, and problem-solving",
     "prefer": "Interested in automation, artificial intelligence, and modern software development"
   },
@@ -21,7 +21,9 @@
   "projectss": {
     "title": "Projects",
     "description": "List of projects.",
-    "viewCode": "View code on GitHub"
+    "viewCode": "View code on GitHub",
+    "footerTitle": "GitHub",
+    "footerDescription": "If you want to review the code again, the repository is still here."
   },
   "contact": {
     "title": "Contact",

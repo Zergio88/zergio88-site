@@ -151,6 +151,25 @@ export default async function ProjectDetailPage({ params }: PageProps) {
           Aún no se agregó contenido detallado a este proyecto. Próximamente habrá más información.
         </p>
       )}
+
+      {post.githubUrl && (
+        <footer className="rounded-2xl border border-white/10 bg-white/5 p-5 md:p-6">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="space-y-1">
+              <p className="text-sm uppercase tracking-[0.25em] text-gray-500">{t('footerTitle')}</p>
+              <p className="text-sm leading-relaxed text-gray-300">{t('footerDescription')}</p>
+            </div>
+            <a
+              className="w-fit rounded-md border border-white/20 px-5 py-2 text-sm font-semibold text-white transition hover:border-white hover:bg-white/10"
+              href={post.githubUrl}
+              target="_blank"
+              rel="noreferrer"
+            >
+              {t('viewCode')}
+            </a>
+          </div>
+        </footer>
+      )}
     </article>
   );
 }
