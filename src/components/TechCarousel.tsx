@@ -26,7 +26,7 @@ export default function TechCarousel({ skills }: Props) {
   if (!items.length) return null;
 
   return (
-    <div className="rounded-md border border-neutral-800 bg-neutral-950/40 p-3">
+    <div className="rounded-md border ui-border ui-surface p-3">
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
         {items.map((s, idx) => (
           <SkillPill key={`${s.name}-${idx}`} skill={s} height={48} />
@@ -40,7 +40,7 @@ function SkillPill({ skill, height }: { skill: AboutSkill; height: number }) {
   const href = skill.url;
   const content = (
     <div
-      className="group flex items-center gap-2 px-3 mx-1 rounded-full border border-neutral-800 bg-neutral-900/60 hover:bg-neutral-900/80 hover:border-emerald-500/50 transition hover:-translate-y-px"
+      className="group mx-1 flex items-center gap-2 rounded-full border ui-border ui-surface-2 px-3 text-foreground transition hover:-translate-y-px hover:border-accent/45"
       style={{ height }}
     >
       {skill.icon?.asset && (
@@ -49,10 +49,10 @@ function SkillPill({ skill, height }: { skill: AboutSkill; height: number }) {
           alt={skill.name || "skill"}
           width={40}
           height={40}
-          className="rounded-sm object-contain bg-white/5"
+          className="rounded-sm border ui-border object-contain bg-background/35"
         />
       )}
-      <span className="text-sm font-medium truncate max-w-40">{skill.name}</span>
+      <span className="max-w-40 truncate text-sm font-medium">{skill.name}</span>
     </div>
   );
 

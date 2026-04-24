@@ -5,7 +5,10 @@
   "navbar": {
     "about": "Sobre mí",
     "projects": "Proyectos",
-    "contact": "Contacto"
+    "contact": "Contacto",
+    "themeToggle": "Cambiar tema",
+    "themeDark": "Oscuro",
+    "themeLight": "Claro"
   },
   "titles": {
     "iam": "Me llamo Sergio Mamani",
@@ -23,7 +26,7 @@
     "description": "Listado de proyectos.",
     "viewCode": "Ver código en GitHub",
     "footerTitle": "GitHub",
-    "footerDescription": "Si quieres revisar el código otra vez, el repositorio sigue aquí."
+    "footerDescription": "El código completo lo encuentras en el repositorio."
   },
   "contact": {
     "title": "Contacto",

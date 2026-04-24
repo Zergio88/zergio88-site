@@ -13,8 +13,8 @@ export default function HomePage() {
   return (
     <div className="
     min-h-screen flex flex-col items-center justify-start 
-    bg-linear-to-b from-[#0a0a0a] via-[#1a1a1a] to-[#0a0a0a] 
-    px-6 text-[#c0c0c0] font-mono space-y-12
+    bg-linear-to-b from-background via-surface to-background 
+    px-6 text-foreground font-mono space-y-12
     pt-10           /* mobile default */
     sm:pt-[6vh]     /* tablet / mobile horizontal */
     md:pt-[8vh] /* desktop */">
@@ -28,7 +28,7 @@ export default function HomePage() {
         <RotatingTitle
           titles={[t("iam"), t("dev"), t("profession"), t("enthusiast"), t("prefer")]}
           interval={3000} // changes every 3s
-          className="text-[1.7rem] sm:text-4xl font-extrabold text-[#00FF00] text-center"
+          className="text-[1.7rem] sm:text-4xl font-extrabold text-accent text-center"
         />
       </div>
       {/* Cube container */}

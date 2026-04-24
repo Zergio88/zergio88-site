@@ -1,8 +1,13 @@
 "use client";
+import Image from "next/image";
 import { routing } from "@/i18n/routing";
 import { useLocale, useTranslations } from "next-intl";
 import { usePathname, useRouter, Link } from "@/i18n/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+
+type Theme = "dark" | "light";
+
+const THEME_STORAGE_KEY = "theme";
 
 const languages = [
   { code: "en-US", label: "English", flag: "us" },
@@ -16,6 +21,20 @@ export default function NavBar() {
   const pathname = usePathname();
   const t = useTranslations("navbar");
   const [menuOpen, setMenuOpen] = useState(false);
+  const [theme, setTheme] = useState<Theme>("dark");
+
+  useEffect(() => {
+    const root = document.documentElement;
+    const dataTheme = root.dataset.theme;
+    if (dataTheme === "dark" || dataTheme === "light") {
+      setTheme(dataTheme);
+      return;
+    }
+
+    root.dataset.theme = "dark";
+    root.style.colorScheme = "dark";
+    setTheme("dark");
+  }, []);
 
   function handleSelectOnChange(currentLocale: (typeof routing.locales)[number]) {
     const query = Object.fromEntries(new URLSearchParams(window.location.search));
@@ -23,44 +42,72 @@ export default function NavBar() {
     setMenuOpen(false); // Close menu when changing language
   }
 
+  function applyTheme(nextTheme: Theme) {
+    const root = document.documentElement;
+    root.dataset.theme = nextTheme;
+    root.style.colorScheme = nextTheme;
+    window.localStorage.setItem(THEME_STORAGE_KEY, nextTheme);
+    document.cookie = `theme=${nextTheme}; path=/; max-age=31536000; samesite=lax`;
+    setTheme(nextTheme);
+  }
+
+  function handleThemeToggle() {
+    applyTheme(theme === "dark" ? "light" : "dark");
+  }
+
+  const themeLabel = theme === "dark" ? t("themeDark") : t("themeLight");
+
   return (
-    <nav className="relative w-full bg-linear-to-b from-[#0a0a0a] via-[#1a1a1a] to-[#0a0a0a] shadow-md">
-      <div className="flex items-center py-3 md:py-2 px-4">
+    <nav className="relative w-full border-b ui-border bg-linear-to-b from-background via-surface to-background shadow-md">
+      <div className="flex items-center px-4 py-3 md:py-2">
 
         {/* Logo */}
         <div className="flex items-center space-x-2">
           <Link href="/">
-            <img
+            <Image
               src="/logo.svg"
               alt="Logo"
-              className="h-10 w-10 md:h-12 md:w-12 border border-white rounded transition duration-300 ease-out hover:-rotate-6 hover:brightness-125"
+              width={48}
+              height={48}
+              className="h-10 w-10 rounded border ui-border transition duration-300 ease-out hover:-rotate-6 hover:brightness-125 md:h-12 md:w-12"
             />
           </Link>
         </div>
 
         {/* Desktop menu */}
-        <ul className="hidden md:flex items-center space-x-6 ml-auto">
+        <ul className="ml-auto hidden items-center space-x-6 text-foreground md:flex">
           <li>
-            <Link href="/projectss" className="uppercase">
+            <Link href="/projectss" className="uppercase decoration-transparent underline-offset-4 transition-colors hover:text-accent hover:underline focus-visible:underline">
               {t("projects")}
             </Link>
           </li>
           <li>
-            <Link href="/contact" className="uppercase">
+            <Link href="/contact" className="uppercase decoration-transparent underline-offset-4 transition-colors hover:text-accent hover:underline focus-visible:underline">
               {t("contact")}
             </Link>
           </li>
           <li>
-            <Link href="/about" className="uppercase">
+            <Link href="/about" className="uppercase decoration-transparent underline-offset-4 transition-colors hover:text-accent hover:underline focus-visible:underline">
               {t("about")}
             </Link>
           </li>
         </ul>
 
         {/* Language selector desktop */}
-        <div className="hidden md:block relative ml-6">
+        <button
+          type="button"
+          className="ml-6 hidden rounded-md border ui-border ui-surface px-3 py-2 text-sm font-semibold text-foreground transition-colors hover:bg-surface-2 ui-focus md:block"
+          onClick={handleThemeToggle}
+          aria-label={t("themeToggle")}
+          aria-pressed={theme === "light"}
+          title={`${t("themeToggle")}: ${themeLabel}`}
+        >
+          {theme === "dark" ? "☀" : "☾"} {themeLabel}
+        </button>
+
+        <div className="relative ml-6 hidden md:block">
           <select
-            className="px-3 py-2 rounded-md bg-[#f0f0f0]/10 text-[#c0c0c0] font-sans font-semibold shadow-md hover:bg-[#f0f0f0]/20 transition-all duration-300"
+            className="rounded-md border ui-border ui-surface px-3 py-2 font-sans font-semibold text-foreground shadow-md transition-all duration-300 hover:bg-surface-2 ui-focus"
             defaultValue={locale}
             onChange={(e) =>
               handleSelectOnChange(e.target.value as (typeof routing.locales)[number])
@@ -75,9 +122,20 @@ export default function NavBar() {
         </div>
 
         {/* Mobile right side: language selector + hamburger */}
-        <div className="flex items-center md:hidden ml-auto space-x-4">
+        <div className="ml-auto flex items-center space-x-3 md:hidden">
+          <button
+            type="button"
+            className="rounded-md border ui-border ui-surface px-2 py-1 text-xs font-semibold text-foreground transition-colors hover:bg-surface-2 ui-focus"
+            onClick={handleThemeToggle}
+            aria-label={t("themeToggle")}
+            aria-pressed={theme === "light"}
+            title={`${t("themeToggle")}: ${themeLabel}`}
+          >
+            {theme === "dark" ? "☀" : "☾"}
+          </button>
+
           <select
-            className="px-2 py-1 rounded-md bg-[#f0f0f0]/10 text-[#c0c0c0] font-sans font-semibold shadow-md hover:bg-[#f0f0f0]/20 transition-all duration-300 text-sm"
+            className="rounded-md border ui-border ui-surface px-2 py-1 text-sm font-sans font-semibold text-foreground shadow-md transition-all duration-300 hover:bg-surface-2 ui-focus"
             defaultValue={locale}
             onChange={(e) =>
               handleSelectOnChange(e.target.value as (typeof routing.locales)[number])
@@ -91,7 +149,7 @@ export default function NavBar() {
           </select>
 
           <button
-            className="text-gray-400 hover:text-white focus:outline-none"
+            className="text-muted transition-colors hover:text-foreground ui-focus"
             onClick={() => setMenuOpen(!menuOpen)}
             aria-label="Toggle menu"
           >
@@ -116,11 +174,11 @@ export default function NavBar() {
 
       {/* Mobile menu */}
       {menuOpen && (
-        <ul className="md:hidden absolute top-full right-0 w-40 bg-[#1a1a1a] rounded-b-md shadow-lg z-50">
+        <ul className="absolute top-full right-0 z-50 w-40 rounded-b-md border ui-border ui-surface shadow-lg md:hidden">
           <li>
             <Link
               href="/projectss"
-              className="block px-4 py-2 text-white hover:bg-[#333]"
+              className="block px-4 py-2 text-foreground transition-colors hover:bg-surface-2 hover:text-accent"
               onClick={() => setMenuOpen(false)}
             >
               {t("projects").toUpperCase()}
@@ -129,7 +187,7 @@ export default function NavBar() {
           <li>
             <Link
               href="/contact"
-              className="block px-4 py-2 text-white hover:bg-[#333]"
+              className="block px-4 py-2 text-foreground transition-colors hover:bg-surface-2 hover:text-accent"
               onClick={() => setMenuOpen(false)}
             >
               {t("contact").toUpperCase()}
@@ -138,7 +196,7 @@ export default function NavBar() {
           <li>
             <Link
               href="/about"
-              className="block px-4 py-2 text-white hover:bg-[#333]"
+              className="block px-4 py-2 text-foreground transition-colors hover:bg-surface-2 hover:text-accent"
               onClick={() => setMenuOpen(false)}
             >
               {t("about").toUpperCase()}

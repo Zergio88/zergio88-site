@@ -74,21 +74,21 @@ function inferTimelineCategory(item: AboutTimelineItem): AboutTimelineCategory {
   return hasEducationKeyword ? "education" : "experience";
 }
 
-function renderTimelineList(items: AboutTimelineItem[]) {
+function renderTimelineList(items: AboutTimelineItem[], portableComponents: PortableTextComponents) {
   return (
-    <ol className="relative border-s border-neutral-800 ps-5 space-y-6">
+    <ol className="relative border-s ui-border ps-5 space-y-6">
       {items.map((item: AboutTimelineItem, idx: number) => (
         <li key={idx} className="ms-2">
-          <div className="absolute -left-1.5 mt-1.5 h-3 w-3 rounded-full bg-emerald-400" />
+          <div className="absolute -left-1.5 mt-1.5 h-3 w-3 rounded-full bg-accent" />
           <h3 className="font-medium">{item.title}</h3>
-          <p className="text-sm text-gray-400">
+          <p className="text-sm text-muted">
             {[item.organization, [item.startDate, item.endDate].filter(Boolean).join(" – ")]
               .filter(Boolean)
               .join(" · ")}
           </p>
           {item.summary && item.summary.length > 0 && (
-            <div className="prose prose-invert max-w-none mt-2">
-              <PortableText value={item.summary} />
+            <div className="prose max-w-none mt-2 prose-headings:text-foreground prose-p:text-foreground prose-strong:text-foreground prose-a:text-accent">
+              <PortableText value={item.summary} components={portableComponents} />
             </div>
           )}
         </li>
@@ -115,7 +115,7 @@ export default async function AboutPage(props: Props) {
     return (
       <div className="p-8">
         <h1 className="text-3xl font-bold mb-2">Sobre mí</h1>
-        <p className="text-muted-foreground">No se pudo cargar el contenido por ahora.</p>
+        <p className="text-muted">No se pudo cargar el contenido por ahora.</p>
       </div>
     );
   }
@@ -123,26 +123,26 @@ export default async function AboutPage(props: Props) {
   const portableComponents: PortableTextComponents = {
     block: {
       normal: ({ children }) => (
-        <p className="my-5 leading-relaxed text-gray-200">{children}</p>
+        <p className="my-5 leading-relaxed text-foreground">{children}</p>
       ),
       h2: ({ children }) => (
-        <h2 className="mt-10 text-2xl font-semibold text-white">{children}</h2>
+        <h2 className="mt-10 text-2xl font-semibold text-foreground">{children}</h2>
       ),
       h3: ({ children }) => (
-        <h3 className="mt-8 text-xl font-semibold text-white">{children}</h3>
+        <h3 className="mt-8 text-xl font-semibold text-foreground">{children}</h3>
       ),
       blockquote: ({ children }) => (
-        <blockquote className="my-6 border-l-4 border-white/30 pl-4 italic text-gray-200">
+        <blockquote className="my-6 border-l-4 ui-border pl-4 italic text-muted">
           {children}
         </blockquote>
       ),
     },
     list: {
       bullet: ({ children }) => (
-        <ul className="my-4 ml-6 list-disc space-y-2 text-gray-200">{children}</ul>
+        <ul className="my-4 ml-6 list-disc space-y-2 text-foreground">{children}</ul>
       ),
       number: ({ children }) => (
-        <ol className="my-4 ml-6 list-decimal space-y-2 text-gray-200">{children}</ol>
+        <ol className="my-4 ml-6 list-decimal space-y-2 text-foreground">{children}</ol>
       ),
     },
     listItem: {
@@ -155,13 +155,13 @@ export default async function AboutPage(props: Props) {
           href={(value as { href?: string })?.href ?? "#"}
           target="_blank"
           rel="noreferrer noopener"
-          className="font-medium text-emerald-400 underline decoration-emerald-400/40 underline-offset-4 hover:text-emerald-300"
+          className="font-medium text-accent underline decoration-accent underline-offset-4 hover:opacity-85"
         >
           {children}
         </a>
       ),
-      strong: ({ children }) => <strong className="text-white">{children}</strong>,
-      em: ({ children }) => <em className="text-gray-200">{children}</em>,
+      strong: ({ children }) => <strong className="text-foreground">{children}</strong>,
+      em: ({ children }) => <em className="text-foreground">{children}</em>,
       underline: ({ children }) => (
         <span className="underline underline-offset-4">{children}</span>
       ),
@@ -223,22 +223,22 @@ export default async function AboutPage(props: Props) {
 
       {/* Snapshot (after hero with bio) - without contacts duplication */}
       {(about.snapshot?.role || about.snapshot?.location || about.snapshot?.availability) && (
-        <section className="grid grid-cols-1 sm:grid-cols-3 gap-4 bg-neutral-900/50 rounded-lg p-4">
+        <section className="grid grid-cols-1 gap-4 rounded-lg border ui-border ui-surface p-4 sm:grid-cols-3">
           {about.snapshot?.role && (
             <div>
-              <h3 className="text-sm uppercase text-gray-400">{t("role")}</h3>
+              <h3 className="text-sm uppercase text-muted">{t("role")}</h3>
               <p className="font-medium">{about.snapshot.role}</p>
             </div>
           )}
           {about.snapshot?.location && (
             <div>
-              <h3 className="text-sm uppercase text-gray-400">{t("location")}</h3>
+              <h3 className="text-sm uppercase text-muted">{t("location")}</h3>
               <p className="font-medium">{about.snapshot.location}</p>
             </div>
           )}
           {about.snapshot?.availability && (
             <div>
-              <h3 className="text-sm uppercase text-gray-400">{t("availability")}</h3>
+              <h3 className="text-sm uppercase text-muted">{t("availability")}</h3>
               <p className="font-medium">{about.snapshot.availability}</p>
             </div>
           )}
@@ -258,14 +258,14 @@ export default async function AboutPage(props: Props) {
           {experienceItems.length > 0 && (
             <div>
               <h2 className="text-2xl font-semibold mb-4">{t("experienceSection")}</h2>
-              {renderTimelineList(experienceItems)}
+              {renderTimelineList(experienceItems, portableComponents)}
             </div>
           )}
 
           {educationItems.length > 0 && (
             <div>
               <h2 className="text-2xl font-semibold mb-4">{t("educationSection")}</h2>
-              {renderTimelineList(educationItems)}
+              {renderTimelineList(educationItems, portableComponents)}
             </div>
           )}
         </section>
@@ -277,11 +277,11 @@ export default async function AboutPage(props: Props) {
           <h2 className="text-2xl font-semibold mb-4">{t("principles")}</h2>
           <ul className="grid gap-4 sm:grid-cols-2">
             {about.principles.map((p, i) => (
-              <li key={i} className="rounded-md border border-neutral-800 p-4 bg-neutral-950/40">
+              <li key={i} className="rounded-md border ui-border ui-surface p-4">
                 <h3 className="font-medium mb-1">{p.title}</h3>
                 {p.description && (
-                  <div className="prose prose-invert max-w-none text-sm">
-                    <PortableText value={p.description} />
+                  <div className="prose max-w-none text-sm prose-headings:text-foreground prose-p:text-foreground prose-strong:text-foreground prose-a:text-accent">
+                    <PortableText value={p.description} components={portableComponents} />
                   </div>
                 )}
               </li>
@@ -300,20 +300,20 @@ export default async function AboutPage(props: Props) {
                 const post = (f as AboutFeaturedPost).post
                 const href = `/${locale}/projectss/${post.slug?.current}`
                 return (
-                  <a key={`f-${i}`} href={href} className="group rounded-md border border-neutral-800 p-4 bg-neutral-950/40 hover:border-emerald-600/50 transition-colors">
-                    <h3 className="font-medium mb-1 group-hover:text-emerald-400">{post.title}</h3>
-                    {post.description && <p className="text-sm text-gray-400 line-clamp-3">{post.description}</p>}
+                  <a key={`f-${i}`} href={href} className="group rounded-md border ui-border p-4 ui-surface transition-colors hover:border-accent/50 hover:bg-surface-2">
+                    <h3 className="mb-1 font-medium group-hover:text-accent">{post.title}</h3>
+                    {post.description && <p className="line-clamp-3 text-sm text-muted">{post.description}</p>}
                   </a>
                 )
               }
               if (f.type === 'external') {
                 const ext = f as AboutFeaturedExternal
                 return (
-                  <a key={`f-${i}`} href={ext.href || '#'} target="_blank" rel="noreferrer noopener" className="group rounded-md border border-neutral-800 p-4 bg-neutral-950/40 hover:border-emerald-600/50 transition-colors">
-                    <h3 className="font-medium mb-1 group-hover:text-emerald-400">{ext.title}</h3>
+                  <a key={`f-${i}`} href={ext.href || '#'} target="_blank" rel="noreferrer noopener" className="group rounded-md border ui-border p-4 ui-surface transition-colors hover:border-accent/50 hover:bg-surface-2">
+                    <h3 className="mb-1 font-medium group-hover:text-accent">{ext.title}</h3>
                     {ext.summary && (
-                      <div className="prose prose-invert max-w-none text-sm line-clamp-4">
-                        <PortableText value={ext.summary} />
+                      <div className="prose max-w-none text-sm line-clamp-4 prose-headings:text-foreground prose-p:text-foreground prose-strong:text-foreground prose-a:text-accent">
+                        <PortableText value={ext.summary} components={portableComponents} />
                       </div>
                     )}
                   </a>

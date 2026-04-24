@@ -168,10 +168,10 @@ function CubeMesh({ meshTargetFace, faceTextures, faceTexts, onClick, fontUrl, c
     <group
       ref={cubeRef}
       onClick={onClick}
-      onPointerOver={(e) => {
+      onPointerOver={() => {
         document.body.style.cursor = "pointer";
       }}
-      onPointerOut={(e) => {
+      onPointerOut={() => {
         document.body.style.cursor = "default";
       }}>
 

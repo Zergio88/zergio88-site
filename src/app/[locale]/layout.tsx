@@ -4,8 +4,28 @@ import {Analytics} from '@vercel/analytics/react';
 import Navbar from '@/components/NavBar';
 import {hasLocale, NextIntlClientProvider} from 'next-intl';
 import {notFound} from 'next/navigation';
+import { cookies } from 'next/headers';
 import { routing } from '@/i18n/routing';
 import './globals.css';
+
+function getThemeBootstrapScript(initialTheme: 'dark' | 'light') {
+  return `(() => {
+  try {
+    const key = 'theme';
+    const saved = window.localStorage.getItem(key);
+    const cookieMatch = document.cookie.match(/(?:^|; )theme=(dark|light)(?:;|$)/);
+    const cookieTheme = cookieMatch ? cookieMatch[1] : null;
+    const theme = saved === 'light' || saved === 'dark'
+      ? saved
+      : (cookieTheme === 'light' || cookieTheme === 'dark' ? cookieTheme : '${initialTheme}');
+    document.documentElement.dataset.theme = theme;
+    document.documentElement.style.colorScheme = theme;
+  } catch {
+    document.documentElement.dataset.theme = '${initialTheme}';
+    document.documentElement.style.colorScheme = '${initialTheme}';
+  }
+})();`;
+}
 
 interface Props {
   children: ReactNode;
@@ -30,8 +50,16 @@ export default async function LocaleLayout({children, params}: Props) {
     notFound();
   }
 
+  const cookieStore = await cookies();
+  const cookieTheme = cookieStore.get('theme')?.value;
+  const initialTheme: 'dark' | 'light' = cookieTheme === 'light' ? 'light' : 'dark';
+  const themeBootstrapScript = getThemeBootstrapScript(initialTheme);
+
   return (
-    <html lang={locale}>
+    <html lang={locale} data-theme={initialTheme} suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeBootstrapScript }} />
+      </head>
       <body>
         <NextIntlClientProvider locale={locale} messages={messages}>
           <Navbar />

@@ -1,28 +1,141 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #0a0a0a;
+  --foreground: #ededed;
+  --surface: #171717;
+  --surface-2: #1f1f1f;
+  --border: #2f2f2f;
+  --muted: #b4b4b4;
+  --accent: #00cc66;
+  --accent-foreground: #04140a;
+  --terminal-shell-bg: #060806;
+  --terminal-shell-border: rgba(0, 255, 120, 0.2);
+  --terminal-header-from: #141914;
+  --terminal-header-via: #101510;
+  --terminal-header-to: #0c110c;
+  --terminal-header-border: rgba(0, 255, 120, 0.18);
+  --terminal-title: #d2dad2;
+  --terminal-body-bg: radial-gradient(circle at top right, #0c180c 0%, #091109 40%, #050805 100%);
+  --terminal-text: #dce7dc;
+  --terminal-prompt: #00ff66;
+  --terminal-help: #99b899;
+  --terminal-error: #ff8e8e;
+  --terminal-key: #f5c86e;
+  --terminal-separator: #7f9f7f;
+  --terminal-command: #8dff8d;
+  --terminal-link-bg: #0b120b;
+  --terminal-link-border: rgba(0, 255, 120, 0.24);
+  --terminal-link-border-hover: rgba(0, 255, 120, 0.5);
+  --terminal-link-text: #8dff8d;
+  --terminal-link-text-hover: #bfffbf;
+  --terminal-placeholder: #5f7f5f;
+  --terminal-shadow: 0 30px 90px -25px rgba(0, 0, 0, 0.9);
+  --terminal-dot-red: #ff6b6b;
+  --terminal-dot-yellow: #f2c566;
+  --terminal-dot-green: #28c840;
+  --terminal-dot-red-shadow: 0 0 10px rgba(255, 107, 107, 0.35);
+  --terminal-dot-yellow-shadow: 0 0 10px rgba(242, 197, 102, 0.32);
+  --terminal-dot-green-shadow: 0 0 10px rgba(40, 200, 64, 0.35);
+  color-scheme: dark;
+}
+
+:root[data-theme="light"] {
+  --background: #f6f5eb;
+  --foreground: #1f252b;
+  --surface: #fffef9;
+  --surface-2: #f2f0e5;
+  --border: #c6c2b3;
+  --muted: #49535f;
+  --accent: #2b5f9e;
+  --accent-foreground: #ffffff;
+  --terminal-shell-bg: #fbfaf4;
+  --terminal-shell-border: rgba(109, 121, 136, 0.3);
+  --terminal-header-from: #f1efe3;
+  --terminal-header-via: #eceadf;
+  --terminal-header-to: #e6e4d8;
+  --terminal-header-border: rgba(109, 121, 136, 0.28);
+  --terminal-title: #2f3b48;
+  --terminal-body-bg: radial-gradient(circle at top right, #f8f6ee 0%, #f1efe5 45%, #ece9dd 100%);
+  --terminal-text: #2b3642;
+  --terminal-prompt: #1f4f95;
+  --terminal-help: #667789;
+  --terminal-error: #b42318;
+  --terminal-key: #8d6a24;
+  --terminal-separator: #708092;
+  --terminal-command: #2b5f9e;
+  --terminal-link-bg: #eceae0;
+  --terminal-link-border: rgba(43, 95, 158, 0.25);
+  --terminal-link-border-hover: rgba(43, 95, 158, 0.45);
+  --terminal-link-text: #2b5f9e;
+  --terminal-link-text-hover: #1f4a80;
+  --terminal-placeholder: #7a8797;
+  --terminal-shadow: 0 30px 90px -25px rgba(57, 66, 80, 0.24);
+  --terminal-dot-red: #d17171;
+  --terminal-dot-yellow: #ccab68;
+  --terminal-dot-green: #72a87f;
+  --terminal-dot-red-shadow: 0 0 10px rgba(209, 113, 113, 0.2);
+  --terminal-dot-yellow-shadow: 0 0 10px rgba(204, 171, 104, 0.2);
+  --terminal-dot-green-shadow: 0 0 10px rgba(114, 168, 127, 0.2);
+  color-scheme: light;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-border: var(--border);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Verdana, Geneva, Tahoma, sans-serif;
+  line-height: 1.5;
+}
+
+a {
+  color: inherit;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--accent) 35%, transparent);
+  color: var(--foreground);
+}
+
+.ui-surface {
+  background-color: var(--surface);
+}
+
+.ui-surface-2 {
+  background-color: var(--surface-2);
+}
+
+.ui-border {
+  border-color: var(--border);
+}
+
+.ui-muted {
+  color: var(--muted);
+}
+
+.ui-accent {
+  color: var(--accent);
+}
+
+.ui-focus {
+  outline: none;
+}
+
+.ui-focus:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 /* globals.css */
