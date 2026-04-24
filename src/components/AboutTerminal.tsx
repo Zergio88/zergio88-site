@@ -1,29 +1,9 @@
-"use client";
-
-import { useEffect, useRef, useState } from "react";
-
 type Locale = "es" | "en" | "pt";
 
 type TerminalAction = {
   label: string;
   href: string;
   external?: boolean;
-};
-
-type HelpGroupLine = {
-  kind: "helpGroup";
-  title: string;
-  commands: string[];
-};
-
-type TerminalLine = string | HelpGroupLine;
-
-type TerminalEntry = {
-  id: number;
-  command?: string;
-  lines: TerminalLine[];
-  actions?: TerminalAction[];
-  tone?: "default" | "error";
 };
 
 type AboutTerminalProps = {
@@ -38,183 +18,15 @@ type AboutTerminalProps = {
 };
 
 type Copy = {
-  hint: string;
-  placeholder: string;
-  helpHeader: string;
-  helpNote: string;
-  helpGroups: Array<{ title: string; commands: string[] }>;
-  unknown: (command: string) => string;
-  tryHelp: string;
-  whoami: string[];
-  stack: string[];
-  experience: string[];
-  education: string[];
-  goals: string[];
-  projects: string[];
-  contact: string[];
   emailLabel: string;
   githubLabel: string;
   linkedinLabel: string;
   projectsLabel: string;
   contactLabel: string;
+  summaryLabel: string;
+  summaryPrefix: string;
+  actionsLabel: string;
 };
-
-const PROMPT = "sergio@portfolio:~$";
-const MAX_HISTORY = 18;
-
-function getCopy(locale: Locale, title: string): Copy {
-  const copyByLocale: Record<Locale, Copy> = {
-    es: {
-      hint: 'Escribe "help" para ver los comandos disponibles.',
-      placeholder: "Escribe un comando...",
-      helpHeader: "Comandos disponibles:",
-      helpNote: 'Nota: "navegacion", "perfil" y "contacto" son categorias, no comandos.',
-      helpGroups: [
-        { title: "navegacion", commands: ["help", "about", "whoami", "clear"] },
-        { title: "perfil", commands: ["stack", "experience", "education", "goals", "projects"] },
-        { title: "contacto", commands: ["email", "github", "linkedin", "contact"] },
-      ],
-      unknown: (command) => `${command}: comando no encontrado`,
-      tryHelp: 'Escribe "help" para ver los comandos disponibles.',
-      whoami: [title],
-      stack: [
-        "Principal: Java, Spring Boot.",
-        "Tambien use: Go, React, Android (Java y Kotlin), Firestore, VBA, Python, Bash y Batch.",
-        "Explorando: Docker y fundamentos de IA.",
-      ],
-      experience: [
-        "Experiencia en entornos IT como tecnico y analista, desarrollando soluciones de automatizacion y herramientas para optimizar procesos operativos.",
-        "",
-        "Participacion en el desarrollo de aplicaciones de escritorio y moviles orientadas a resolver necesidades reales.",
-      ],
-      education: [
-        "UADE - Licenciatura en Gestion de Tecnologias de la Informacion",
-        "En curso (graduacion estimada 2027)",
-        "",
-        "QA Tester - UTN FRBA (2021)",
-        "",
-        "Tecnico Informatico (Secundario)",
-      ],
-      goals: [
-        "- Profundizar en desarrollo backend con Java",
-        "- Fortalecer conocimientos en Spring Boot",
-        "- Preparar certificacion Java SE 21",
-        "- Continuar explorando tecnologias modernas como IA y desarrollo fullstack",
-      ],
-      projects: [
-        "Puedes abrir la seccion completa de proyectos desde aqui.",
-      ],
-      contact: [
-        "Canales directos disponibles:",
-      ],
-      emailLabel: "Enviar email",
-      githubLabel: "Abrir GitHub",
-      linkedinLabel: "Abrir LinkedIn",
-      projectsLabel: "Ver proyectos",
-      contactLabel: "Ir a contacto",
-    },
-    en: {
-      hint: 'Type "help" to see available commands.',
-      placeholder: "Type a command...",
-      helpHeader: "Available commands:",
-      helpNote: 'Note: "navigation", "profile", and "contact" are categories, not commands.',
-      helpGroups: [
-        { title: "navigation", commands: ["help", "about", "whoami", "clear"] },
-        { title: "profile", commands: ["stack", "experience", "education", "goals", "projects"] },
-        { title: "contact", commands: ["email", "github", "linkedin", "contact"] },
-      ],
-      unknown: (command) => `${command}: command not found`,
-      tryHelp: 'Type "help" to see available commands.',
-      whoami: [title],
-      stack: [
-        "Primary: Java, Spring Boot.",
-        "Also used: Go, React, Android (Java & Kotlin), Firestore, VBA, Python, Bash, and Batch.",
-        "Exploring: Docker and AI fundamentals.",
-      ],
-      experience: [
-        "Experience in IT environments as a technician and analyst, developing automation solutions and tools to optimize operational processes.",
-        "",
-        "Involvement in developing desktop and mobile applications aimed at solving real needs.",
-      ],
-      education: [
-        "UADE - Bachelor's in Information Technology Management",
-        "In progress (expected graduation 2027)",
-        "",
-        "QA Tester - UTN FRBA (2021)",
-        "",
-        "Computer Technician (Secondary School)",
-      ],
-      goals: [
-        "- Deepen backend development with Java",
-        "- Strengthen knowledge in Spring Boot",
-        "- Prepare for Java SE 21 certification",
-        "- Continue exploring modern technologies like AI and fullstack development",
-      ],
-      projects: [
-        "You can open the full projects section from here.",
-      ],
-      contact: [
-        "Direct contact channels:",
-      ],
-      emailLabel: "Send email",
-      githubLabel: "Open GitHub",
-      linkedinLabel: "Open LinkedIn",
-      projectsLabel: "View projects",
-      contactLabel: "Go to contact",
-    },
-    pt: {
-      hint: 'Digite "help" para ver os comandos disponiveis.',
-      placeholder: "Digite um comando...",
-      helpHeader: "Comandos disponiveis:",
-      helpNote: 'Nota: "navegacao", "perfil" e "contato" sao categorias, nao comandos.',
-      helpGroups: [
-        { title: "navegacao", commands: ["help", "about", "whoami", "clear"] },
-        { title: "perfil", commands: ["stack", "experience", "education", "goals", "projects"] },
-        { title: "contato", commands: ["email", "github", "linkedin", "contact"] },
-      ],
-      unknown: (command) => `${command}: comando nao encontrado`,
-      tryHelp: 'Digite "help" para ver os comandos disponiveis.',
-      whoami: [title],
-      stack: [
-        "Principal: Java, Spring Boot.",
-        "Tambem usei: Go, React, Android (Java e Kotlin), Firestore, VBA, Python, Bash e Batch.",
-        "Explorando: Docker e fundamentos de IA.",
-      ],
-      experience: [
-        "Experiencia em ambientes de TI como tecnico e analista, desenvolvendo solucoes de automacao e ferramentas para otimizar processos operacionais.",
-        "",
-        "Participacao no desenvolvimento de aplicacoes desktop e mobile voltadas a resolver necessidades reais.",
-      ],
-      education: [
-        "UADE - Licenciatura em Gestao de Tecnologias da Informacao",
-        "Em curso (conclusao estimada em 2027)",
-        "",
-        "QA Tester - UTN FRBA (2021)",
-        "",
-        "Tecnico em Informatica (Ensino Medio)",
-      ],
-      goals: [
-        "- Aprofundar o desenvolvimento backend com Java",
-        "- Fortalecer conhecimentos em Spring Boot",
-        "- Preparar certificacao Java SE 21",
-        "- Continuar explorando tecnologias modernas como IA e desenvolvimento fullstack",
-      ],
-      projects: [
-        "Voce pode abrir a secao completa de projetos daqui.",
-      ],
-      contact: [
-        "Canais diretos disponiveis:",
-      ],
-      emailLabel: "Enviar email",
-      githubLabel: "Abrir GitHub",
-      linkedinLabel: "Abrir LinkedIn",
-      projectsLabel: "Ver projetos",
-      contactLabel: "Ir para contato",
-    },
-  };
-
-  return copyByLocale[locale];
-}
 
 function normalizeLocale(locale: string): Locale {
   if (locale === "en" || locale === "pt") {
@@ -224,25 +36,57 @@ function normalizeLocale(locale: string): Locale {
   return "es";
 }
 
-function normalizeCommand(command: string): string {
-  return command
-    .trim()
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "");
+function getCopy(locale: Locale): Copy {
+  const copyByLocale: Record<Locale, Copy> = {
+    es: {
+      emailLabel: "Enviar email",
+      githubLabel: "Abrir GitHub",
+      linkedinLabel: "Abrir LinkedIn",
+      projectsLabel: "Ver proyectos",
+      contactLabel: "Ir a contacto",
+      summaryLabel: "Resumen",
+      summaryPrefix: "-",
+      actionsLabel: "Accesos directos",
+    },
+    en: {
+      emailLabel: "Send email",
+      githubLabel: "Open GitHub",
+      linkedinLabel: "Open LinkedIn",
+      projectsLabel: "View projects",
+      contactLabel: "Go to contact",
+      summaryLabel: "Summary",
+      summaryPrefix: "-",
+      actionsLabel: "Quick links",
+    },
+    pt: {
+      emailLabel: "Enviar email",
+      githubLabel: "Abrir GitHub",
+      linkedinLabel: "Abrir LinkedIn",
+      projectsLabel: "Ver projetos",
+      contactLabel: "Ir para contato",
+      summaryLabel: "Resumo",
+      summaryPrefix: "-",
+      actionsLabel: "Acessos rapidos",
+    },
+  };
+
+  return copyByLocale[locale];
 }
 
-function initialEntries(copy: Copy, bioLines: string[]): TerminalEntry[] {
+function buildActions(
+  email: string,
+  githubUrl: string,
+  linkedinUrl: string,
+  projectsHref: string,
+  contactHref: string,
+  copy: Copy
+): TerminalAction[] {
   return [
-    {
-      id: 1,
-      lines: [copy.hint],
-    },
-    {
-      id: 2,
-      command: "about",
-      lines: [...bioLines],
-    },
+    { label: copy.projectsLabel, href: projectsHref },
+    { label: copy.contactLabel, href: contactHref },
+    { label: copy.emailLabel, href: `mailto:${email}` },
+    { label: copy.githubLabel, href: githubUrl, external: true },
+    { label: copy.linkedinLabel, href: linkedinUrl, external: true },
   ];
 }
 
@@ -257,156 +101,19 @@ export default function AboutTerminal({
   contactHref,
 }: AboutTerminalProps) {
   const normalizedLocale = normalizeLocale(locale);
-  const copy = getCopy(normalizedLocale, title);
-  const [history, setHistory] = useState<TerminalEntry[]>(() => initialEntries(copy, bioLines));
-  const [input, setInput] = useState("");
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
-  const nextIdRef = useRef(3);
-
-  useEffect(() => {
-    const container = scrollRef.current;
-    if (!container) {
-      return;
-    }
-
-    container.scrollTop = container.scrollHeight;
-  }, [history]);
-
-  const aliases: Record<string, string> = {
-    ayuda: "help",
-    ajuda: "help",
-    sobre: "about",
-    sobremi: "about",
-    sobremim: "about",
-    quiensoy: "whoami",
-    quemsou: "whoami",
-    projetos: "projects",
-    proyectos: "projects",
-    experiencia: "experience",
-    experencia: "experience",
-    educacion: "education",
-    educacao: "education",
-    objetivos: "goals",
-    metas: "goals",
-    correo: "email",
-    contato: "contact",
-    contacto: "contact",
-    limpar: "clear",
-    limpartela: "clear",
-    mail: "email",
-    gh: "github",
-    li: "linkedin",
-  };
-
-  function buildHelpLines() {
-    return [
-      copy.helpHeader,
-      copy.helpNote,
-      ...copy.helpGroups.map((group) => ({
-        kind: "helpGroup" as const,
-        title: group.title,
-        commands: group.commands,
-      })),
-    ];
-  }
-
-  function runCommand(rawCommand: string): TerminalEntry | "clear" {
-    const nextId = nextIdRef.current++;
-    const normalized = normalizeCommand(rawCommand);
-    const command = aliases[normalized] ?? normalized;
-
-    switch (command) {
-      case "help":
-        return { id: nextId, command: rawCommand, lines: buildHelpLines() };
-      case "about":
-        return { id: nextId, command: rawCommand, lines: [...bioLines] };
-      case "whoami":
-        return { id: nextId, command: rawCommand, lines: copy.whoami };
-      case "stack":
-        return { id: nextId, command: rawCommand, lines: copy.stack };
-      case "experience":
-        return { id: nextId, command: rawCommand, lines: copy.experience };
-      case "education":
-        return { id: nextId, command: rawCommand, lines: copy.education };
-      case "goals":
-        return { id: nextId, command: rawCommand, lines: copy.goals };
-      case "projects":
-        return {
-          id: nextId,
-          command: rawCommand,
-          lines: copy.projects,
-          actions: [{ label: copy.projectsLabel, href: projectsHref }],
-        };
-      case "email":
-        return {
-          id: nextId,
-          command: rawCommand,
-          lines: [email],
-          actions: [{ label: copy.emailLabel, href: `mailto:${email}` }],
-        };
-      case "github":
-        return {
-          id: nextId,
-          command: rawCommand,
-          lines: [githubUrl],
-          actions: [{ label: copy.githubLabel, href: githubUrl, external: true }],
-        };
-      case "linkedin":
-        return {
-          id: nextId,
-          command: rawCommand,
-          lines: [linkedinUrl],
-          actions: [{ label: copy.linkedinLabel, href: linkedinUrl, external: true }],
-        };
-      case "contact":
-        return {
-          id: nextId,
-          command: rawCommand,
-          lines: copy.contact,
-          actions: [
-            { label: copy.emailLabel, href: `mailto:${email}` },
-            { label: copy.githubLabel, href: githubUrl, external: true },
-            { label: copy.linkedinLabel, href: linkedinUrl, external: true },
-            { label: copy.contactLabel, href: contactHref },
-          ],
-        };
-      case "clear":
-        return "clear";
-      default:
-        return {
-          id: nextId,
-          command: rawCommand,
-          lines: [copy.unknown(rawCommand), copy.tryHelp],
-          tone: "error",
-        };
-    }
-  }
-
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-
-    const rawCommand = input.trim();
-    if (!rawCommand) {
-      return;
-    }
-
-    const result = runCommand(rawCommand);
-    if (result === "clear") {
-      setHistory([]);
-      setInput("");
-      return;
-    }
-
-    setHistory((current) => [...current, result].slice(-MAX_HISTORY));
-    setInput("");
-  }
+  const copy = getCopy(normalizedLocale);
+  const summaryLines = bioLines.slice(0, 4);
+  const actions = buildActions(
+    email,
+    githubUrl,
+    linkedinUrl,
+    projectsHref,
+    contactHref,
+    copy
+  );
 
   return (
-    <div
-      className="h-112 w-full overflow-hidden rounded-2xl border border-(--terminal-shell-border) bg-(--terminal-shell-bg) shadow-(--terminal-shadow) md:h-128"
-      onClick={() => inputRef.current?.focus()}
-    >
+    <div className="w-full overflow-hidden rounded-2xl border border-(--terminal-shell-border) bg-(--terminal-shell-bg) shadow-(--terminal-shadow)">
       <div className="flex items-center gap-3 border-b border-(--terminal-header-border) bg-linear-to-r from-(--terminal-header-from) via-(--terminal-header-via) to-(--terminal-header-to) px-4 py-3">
         <div className="flex items-center gap-2">
           <span className="h-3 w-3 rounded-full bg-(--terminal-dot-red) shadow-(--terminal-dot-red-shadow)" />
@@ -419,82 +126,39 @@ export default function AboutTerminal({
         </div>
       </div>
 
-      <div className="flex h-[calc(100%-54px)] flex-col bg-(--terminal-body-bg)">
-        <div
-          ref={scrollRef}
-          className="flex-1 overflow-y-auto overscroll-contain px-5 pt-5 pb-3 md:px-6 md:pt-6 md:pb-4"
-        >
-          <div className="space-y-4 font-mono text-xs leading-6 text-(--terminal-text) sm:text-sm">
-            {history.map((entry) => (
-              <div key={entry.id} className="space-y-2">
-                {entry.command && (
-                  <div className="grid min-w-0 grid-cols-[auto_1fr] items-start gap-3">
-                    <span className="select-none whitespace-nowrap pt-0.5 text-(--terminal-prompt)">{PROMPT}</span>
-                    <span className="min-w-0 wrap-break-word text-(--terminal-text)">{entry.command}</span>
-                  </div>
-                )}
-
-                <div className="space-y-2 pl-0">
-                  {entry.lines.map((line, index) => {
-                    if (typeof line !== "string") {
-                      return (
-                        <p key={`${entry.id}-${index}`} className="wrap-break-word text-(--terminal-text)">
-                          <span className="font-semibold text-(--terminal-key)">{line.title}</span>
-                          <span className="text-(--terminal-separator)">: </span>
-                          <span className="text-(--terminal-command)">{line.commands.join(", ")}</span>
-                        </p>
-                      );
-                    }
-
-                    const baseClass = entry.tone === "error" ? "wrap-break-word text-(--terminal-error)" : "wrap-break-word text-(--terminal-text)";
-                    const helpNoteClass = line === copy.helpNote ? " text-(--terminal-help)" : "";
-
-                    return (
-                      <p key={`${entry.id}-${index}`} className={`${baseClass}${helpNoteClass}`}>
-                        {line}
-                      </p>
-                    );
-                  })}
-
-                  {entry.actions && entry.actions.length > 0 && (
-                    <div className="flex flex-wrap gap-2 pt-1">
-                      {entry.actions.map((action) => (
-                        <a
-                          key={`${entry.id}-${action.href}`}
-                          href={action.href}
-                          target={action.external ? "_blank" : undefined}
-                          rel={action.external ? "noreferrer noopener" : undefined}
-                          className="rounded-md border border-(--terminal-link-border) bg-(--terminal-link-bg) px-3 py-1.5 text-(--terminal-link-text) transition-colors hover:border-(--terminal-link-border-hover) hover:text-(--terminal-link-text-hover)"
-                        >
-                          {action.label}
-                        </a>
-                      ))}
-                    </div>
-                  )}
-                </div>
+      <div className="bg-(--terminal-body-bg) px-5 py-5 md:px-6 md:py-6">
+        <div className="space-y-5 font-mono text-xs leading-6 text-(--terminal-text) sm:text-sm">
+          {summaryLines.length > 0 && (
+            <div className="space-y-3">
+              <p className="text-(--terminal-prompt)">{copy.summaryLabel}</p>
+              <div className="space-y-2">
+                {summaryLines.map((line, index) => (
+                  <p key={`${line}-${index}`} className="wrap-break-word text-(--terminal-text)">
+                    <span className="text-(--terminal-separator)">{copy.summaryPrefix} </span>
+                    {line}
+                  </p>
+                ))}
               </div>
-            ))}
+            </div>
+          )}
+
+          <div className="space-y-3">
+            <p className="text-(--terminal-prompt)">{copy.actionsLabel}</p>
+            <div className="flex flex-wrap gap-2">
+              {actions.map((action) => (
+                <a
+                  key={action.href}
+                  href={action.href}
+                  target={action.external ? "_blank" : undefined}
+                  rel={action.external ? "noreferrer noopener" : undefined}
+                  className="rounded-md border border-(--terminal-link-border) bg-(--terminal-link-bg) px-3 py-1.5 text-(--terminal-link-text) transition-colors hover:border-(--terminal-link-border-hover) hover:text-(--terminal-link-text-hover)"
+                >
+                  {action.label}
+                </a>
+              ))}
+            </div>
           </div>
         </div>
-
-        <form
-          onSubmit={handleSubmit}
-          className="grid min-w-0 grid-cols-[auto_1fr] items-center gap-2.5 border-t border-(--terminal-shell-border) px-5 py-2.5 md:px-6 md:py-3"
-        >
-          <span className="select-none whitespace-nowrap font-mono text-xs text-(--terminal-prompt) sm:text-sm">
-            {PROMPT}
-          </span>
-          <input
-            ref={inputRef}
-            value={input}
-            onChange={(event) => setInput(event.target.value)}
-            className="min-w-0 border-0 bg-transparent font-mono text-xs text-(--terminal-text) outline-none placeholder:text-(--terminal-placeholder) sm:text-sm"
-            placeholder={copy.placeholder}
-            autoCapitalize="none"
-            autoCorrect="off"
-            spellCheck={false}
-          />
-        </form>
       </div>
     </div>
   );

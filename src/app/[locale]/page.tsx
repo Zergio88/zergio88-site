@@ -28,7 +28,7 @@ export default function HomePage() {
         <RotatingTitle
           titles={[t("iam"), t("dev"), t("profession"), t("enthusiast"), t("prefer")]}
           interval={3000} // changes every 3s
-          className="text-[1.7rem] sm:text-4xl font-extrabold text-accent text-center"
+          className="home-hero-title text-[1.7rem] sm:text-4xl font-extrabold text-center"
         />
       </div>
       {/* Cube container */}

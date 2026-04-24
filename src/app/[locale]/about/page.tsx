@@ -181,18 +181,16 @@ export default async function AboutPage(props: Props) {
       {(about.heroTagline || bioLines.length > 0 || about.portrait?.asset) && (
         <section className="grid gap-8 md:grid-cols-[minmax(0,1fr)_360px] items-start">
           <div className="min-w-0">
-            {(about.heroTagline || bioLines.length > 0) && (
-              <AboutTerminal
-                locale={locale}
-                title={about.heroTagline || "bash - terminal"}
-                bioLines={bioLines}
-                email="sergiomamani@live.com.ar"
-                githubUrl="https://github.com/Zergio88"
-                linkedinUrl="https://www.linkedin.com/in/sergio-mamani-3405/"
-                projectsHref={`/${locale}/projectss`}
-                contactHref={`/${locale}/contact`}
-              />
-            )}
+            <AboutTerminal
+              locale={locale}
+              title={about.heroTagline || about.title}
+              bioLines={bioLines}
+              email="sergiomamani@live.com.ar"
+              githubUrl="https://github.com/Zergio88"
+              linkedinUrl="https://www.linkedin.com/in/sergio-mamani-3405/"
+              projectsHref={`/${locale}/projectss`}
+              contactHref={`/${locale}/contact`}
+            />
           </div>
           {about.portrait?.asset && (
             <div className="mx-auto w-full max-w-80 md:max-w-95 md:justify-self-end">
@@ -202,8 +200,8 @@ export default async function AboutPage(props: Props) {
                 const h = dims?.height || 5
                 const aspect = w / h
                 return (
-                  <div className="rounded-2xl border border-[#00ff00]/12 bg-[#060806] p-2 shadow-[0_30px_90px_-25px_rgba(0,0,0,0.72)]">
-                    <div className="relative overflow-hidden rounded-xl bg-neutral-900/60" style={{ aspectRatio: aspect }}>
+                  <div className="rounded-2xl border border-(--terminal-shell-border) bg-(--terminal-shell-bg) p-1.5 shadow-(--terminal-shadow) sm:p-2">
+                    <div className="relative overflow-hidden rounded-xl bg-surface-2/70" style={{ aspectRatio: aspect }}>
                       <Image
                         src={urlFor(about.portrait).width(800).auto('format').fit('clip').url()}
                         alt={"Portrait"}
