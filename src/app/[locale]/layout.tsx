@@ -5,6 +5,7 @@ import Navbar from '@/components/NavBar';
 import {hasLocale, NextIntlClientProvider} from 'next-intl';
 import {notFound} from 'next/navigation';
 import { routing } from '@/i18n/routing';
+import './globals.css';
 
 interface Props {
   children: ReactNode;

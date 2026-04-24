@@ -2,7 +2,6 @@
 import { routing } from "@/i18n/routing";
 import { useLocale, useTranslations } from "next-intl";
 import { usePathname, useRouter, Link } from "@/i18n/navigation";
-import "../app/[locale]/globals.css";
 import { useState } from "react";
 
 const languages = [
