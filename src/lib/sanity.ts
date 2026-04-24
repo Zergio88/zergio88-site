@@ -87,9 +87,12 @@ export type AboutSkill = {
   url?: string
 }
 
+export type AboutTimelineCategory = 'experience' | 'education'
+
 export type AboutTimelineItem = {
   title: string
   organization?: string
+  category?: AboutTimelineCategory
   startDate?: string
   endDate?: string
   summary?: PortableTextBlock[] | null
@@ -212,6 +215,7 @@ export async function getAbout(locale: string = 'es'): Promise<AboutDoc | null> 
     timeline[]{
       "title": ${coalesce('title')},
       organization,
+      category,
       startDate,
       endDate,
       "summary": ${coalesce('summary')},

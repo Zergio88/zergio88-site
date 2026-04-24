@@ -72,6 +72,8 @@
       "availability": "Availability",
       "technologies": "Technologies",
       "experience": "Experience & Education",
+      "experienceSection": "Experience",
+      "educationSection": "Education",
       "contacts": "Contact",
       "principles": "Engineering principles",
       "featured": "Featured"

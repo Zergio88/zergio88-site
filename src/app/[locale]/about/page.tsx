@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { PortableText, type PortableTextComponents } from "@portabletext/react";
 import { getTranslations } from "next-intl/server";
-import { getAbout, urlFor, type AboutDoc, type AboutSkill, type AboutTimelineItem, type AboutFeatured, type AboutFeaturedPost, type AboutFeaturedExternal } from "@/lib/sanity";
+import { getAbout, urlFor, type AboutDoc, type AboutSkill, type AboutTimelineItem, type AboutTimelineCategory, type AboutFeatured, type AboutFeaturedPost, type AboutFeaturedExternal } from "@/lib/sanity";
 import AboutTerminal from "@/components/AboutTerminal";
 import TechCarousel from "@/components/TechCarousel";
 
@@ -34,11 +34,82 @@ function extractPlainTextLines(blocks: PortableTextBlockLike[] | null | undefine
     .filter(Boolean);
 }
 
+const EDUCATION_KEYWORDS = [
+  "education",
+  "educacion",
+  "educación",
+  "studies",
+  "study",
+  "university",
+  "college",
+  "degree",
+  "certification",
+  "course",
+  "bootcamp",
+  "formacion",
+  "formación",
+  "academico",
+  "académico",
+  "escola",
+  "faculdade",
+  "curso"
+];
+
+function inferTimelineCategory(item: AboutTimelineItem): AboutTimelineCategory {
+  if (item.category === "experience" || item.category === "education") {
+    return item.category;
+  }
+
+  const title = (item.title ?? "").toLowerCase();
+  const organization = (item.organization ?? "").toLowerCase();
+  const tags = (item.tags ?? []).map((tag) => tag.toLowerCase());
+
+  const hasEducationKeyword = EDUCATION_KEYWORDS.some(
+    (keyword) =>
+      title.includes(keyword) ||
+      organization.includes(keyword) ||
+      tags.some((tag) => tag.includes(keyword))
+  );
+
+  return hasEducationKeyword ? "education" : "experience";
+}
+
+function renderTimelineList(items: AboutTimelineItem[]) {
+  return (
+    <ol className="relative border-s border-neutral-800 ps-5 space-y-6">
+      {items.map((item: AboutTimelineItem, idx: number) => (
+        <li key={idx} className="ms-2">
+          <div className="absolute -left-1.5 mt-1.5 h-3 w-3 rounded-full bg-emerald-400" />
+          <h3 className="font-medium">{item.title}</h3>
+          <p className="text-sm text-gray-400">
+            {[item.organization, [item.startDate, item.endDate].filter(Boolean).join(" – ")]
+              .filter(Boolean)
+              .join(" · ")}
+          </p>
+          {item.summary && item.summary.length > 0 && (
+            <div className="prose prose-invert max-w-none mt-2">
+              <PortableText value={item.summary} />
+            </div>
+          )}
+        </li>
+      ))}
+    </ol>
+  );
+}
+
 export default async function AboutPage(props: Props) {
   const { locale } = await props.params;
   const t = await getTranslations("aboutPage.labels");
   const about: AboutDoc | null = await getAbout(locale);
   const bioLines = extractPlainTextLines(about?.bio as PortableTextBlockLike[] | null | undefined);
+  const timelineItems = about?.timeline ?? [];
+  const experienceItems = timelineItems.filter(
+    (item) => inferTimelineCategory(item) === "experience"
+  );
+  const educationItems = timelineItems.filter(
+    (item) => inferTimelineCategory(item) === "education"
+  );
+  const hasTimelineSections = experienceItems.length > 0 || educationItems.length > 0;
 
   if (!about) {
     return (
@@ -182,28 +253,21 @@ export default async function AboutPage(props: Props) {
         </section>
       )}
 
-      {/* Timeline */}
-      {about.timeline && about.timeline.length > 0 && (
-        <section>
-          <h2 className="text-2xl font-semibold mb-4">{t("experience")}</h2>
-          <ol className="relative border-s border-neutral-800 ps-5 space-y-6">
-            {(about.timeline ?? []).map((item: AboutTimelineItem, idx: number) => (
-              <li key={idx} className="ms-2">
-                <div className="absolute -left-1.5 mt-1.5 h-3 w-3 rounded-full bg-emerald-400" />
-                <h3 className="font-medium">{item.title}</h3>
-                <p className="text-sm text-gray-400">
-                  {[item.organization, [item.startDate, item.endDate].filter(Boolean).join(" – ")]
-                    .filter(Boolean)
-                    .join(" · ")}
-                </p>
-                {item.summary && item.summary.length > 0 && (
-                  <div className="prose prose-invert max-w-none mt-2">
-                    <PortableText value={item.summary} />
-                  </div>
-                )}
-              </li>
-            ))}
-          </ol>
+      {hasTimelineSections && (
+        <section className="space-y-8">
+          {experienceItems.length > 0 && (
+            <div>
+              <h2 className="text-2xl font-semibold mb-4">{t("experienceSection")}</h2>
+              {renderTimelineList(experienceItems)}
+            </div>
+          )}
+
+          {educationItems.length > 0 && (
+            <div>
+              <h2 className="text-2xl font-semibold mb-4">{t("educationSection")}</h2>
+              {renderTimelineList(educationItems)}
+            </div>
+          )}
         </section>
       )}
 
