@@ -404,33 +404,33 @@ export default function AboutTerminal({
 
   return (
     <div
-      className="h-112 w-full overflow-hidden rounded-2xl border border-[#00ff00]/12 bg-[#060806] shadow-[0_30px_90px_-25px_rgba(0,0,0,0.96)] md:h-128"
+      className="h-112 w-full overflow-hidden rounded-2xl border border-(--terminal-shell-border) bg-(--terminal-shell-bg) shadow-(--terminal-shadow) md:h-128"
       onClick={() => inputRef.current?.focus()}
     >
-      <div className="flex items-center gap-3 border-b border-[#00ff00]/16 bg-linear-to-r from-[#161a16] via-[#111511] to-[#0d120d] px-4 py-3">
+      <div className="flex items-center gap-3 border-b border-(--terminal-header-border) bg-linear-to-r from-(--terminal-header-from) via-(--terminal-header-via) to-(--terminal-header-to) px-4 py-3">
         <div className="flex items-center gap-2">
-          <span className="h-3 w-3 rounded-full bg-[#ff5f57] shadow-[0_0_10px_rgba(255,95,87,0.4)]" />
-          <span className="h-3 w-3 rounded-full bg-[#febc2e] shadow-[0_0_10px_rgba(254,188,46,0.35)]" />
-          <span className="h-3 w-3 rounded-full bg-[#28c840] shadow-[0_0_10px_rgba(40,200,64,0.35)]" />
+          <span className="h-3 w-3 rounded-full bg-(--terminal-dot-red) shadow-(--terminal-dot-red-shadow)" />
+          <span className="h-3 w-3 rounded-full bg-(--terminal-dot-yellow) shadow-(--terminal-dot-yellow-shadow)" />
+          <span className="h-3 w-3 rounded-full bg-(--terminal-dot-green) shadow-(--terminal-dot-green-shadow)" />
         </div>
 
-        <div className="min-w-0 flex-1 truncate text-center font-mono text-sm leading-tight tracking-wide text-[#d2dad2] md:text-base">
+        <div className="min-w-0 flex-1 truncate text-center font-mono text-sm leading-tight tracking-wide text-(--terminal-title) md:text-base">
           {title || "bash - terminal"}
         </div>
       </div>
 
-      <div className="flex h-[calc(100%-54px)] flex-col bg-[radial-gradient(circle_at_top_right,#0d150d_0%,#090d09_40%,#050705_100%)]">
+      <div className="flex h-[calc(100%-54px)] flex-col bg-(--terminal-body-bg)">
         <div
           ref={scrollRef}
           className="flex-1 overflow-y-auto overscroll-contain px-5 pt-5 pb-3 md:px-6 md:pt-6 md:pb-4"
         >
-          <div className="space-y-4 font-mono text-xs leading-6 text-gray-200 sm:text-sm">
+          <div className="space-y-4 font-mono text-xs leading-6 text-(--terminal-text) sm:text-sm">
             {history.map((entry) => (
               <div key={entry.id} className="space-y-2">
                 {entry.command && (
                   <div className="grid min-w-0 grid-cols-[auto_1fr] items-start gap-3">
-                    <span className="select-none whitespace-nowrap pt-0.5 text-[#00ff00]">{PROMPT}</span>
-                    <span className="min-w-0 wrap-break-word text-[#dde7dd]">{entry.command}</span>
+                    <span className="select-none whitespace-nowrap pt-0.5 text-(--terminal-prompt)">{PROMPT}</span>
+                    <span className="min-w-0 wrap-break-word text-(--terminal-text)">{entry.command}</span>
                   </div>
                 )}
 
@@ -438,16 +438,16 @@ export default function AboutTerminal({
                   {entry.lines.map((line, index) => {
                     if (typeof line !== "string") {
                       return (
-                        <p key={`${entry.id}-${index}`} className="wrap-break-word text-[#dde7dd]">
-                          <span className="font-semibold text-[#f5c86e]">{line.title}</span>
-                          <span className="text-[#7f9f7f]">: </span>
-                          <span className="text-[#8dff8d]">{line.commands.join(", ")}</span>
+                        <p key={`${entry.id}-${index}`} className="wrap-break-word text-(--terminal-text)">
+                          <span className="font-semibold text-(--terminal-key)">{line.title}</span>
+                          <span className="text-(--terminal-separator)">: </span>
+                          <span className="text-(--terminal-command)">{line.commands.join(", ")}</span>
                         </p>
                       );
                     }
 
-                    const baseClass = entry.tone === "error" ? "wrap-break-word text-[#ff8e8e]" : "wrap-break-word text-[#dde7dd]";
-                    const helpNoteClass = line === copy.helpNote ? " text-[#9eb39e]" : "";
+                    const baseClass = entry.tone === "error" ? "wrap-break-word text-(--terminal-error)" : "wrap-break-word text-(--terminal-text)";
+                    const helpNoteClass = line === copy.helpNote ? " text-(--terminal-help)" : "";
 
                     return (
                       <p key={`${entry.id}-${index}`} className={`${baseClass}${helpNoteClass}`}>
@@ -464,7 +464,7 @@ export default function AboutTerminal({
                           href={action.href}
                           target={action.external ? "_blank" : undefined}
                           rel={action.external ? "noreferrer noopener" : undefined}
-                          className="rounded-md border border-[#00ff00]/20 bg-[#0c100c] px-3 py-1.5 text-[#8dff8d] transition-colors hover:border-[#00ff00]/45 hover:text-[#b5ffb5]"
+                          className="rounded-md border border-(--terminal-link-border) bg-(--terminal-link-bg) px-3 py-1.5 text-(--terminal-link-text) transition-colors hover:border-(--terminal-link-border-hover) hover:text-(--terminal-link-text-hover)"
                         >
                           {action.label}
                         </a>
@@ -479,16 +479,16 @@ export default function AboutTerminal({
 
         <form
           onSubmit={handleSubmit}
-          className="grid min-w-0 grid-cols-[auto_1fr] items-center gap-2.5 border-t border-[#00ff00]/12 px-5 py-2.5 md:px-6 md:py-3"
+          className="grid min-w-0 grid-cols-[auto_1fr] items-center gap-2.5 border-t border-(--terminal-shell-border) px-5 py-2.5 md:px-6 md:py-3"
         >
-          <span className="select-none whitespace-nowrap font-mono text-xs text-[#00ff00] sm:text-sm">
+          <span className="select-none whitespace-nowrap font-mono text-xs text-(--terminal-prompt) sm:text-sm">
             {PROMPT}
           </span>
           <input
             ref={inputRef}
             value={input}
             onChange={(event) => setInput(event.target.value)}
-            className="min-w-0 border-0 bg-transparent font-mono text-xs text-[#dde7dd] outline-none placeholder:text-[#5d7a5d] sm:text-sm"
+            className="min-w-0 border-0 bg-transparent font-mono text-xs text-(--terminal-text) outline-none placeholder:text-(--terminal-placeholder) sm:text-sm"
             placeholder={copy.placeholder}
             autoCapitalize="none"
             autoCorrect="off"

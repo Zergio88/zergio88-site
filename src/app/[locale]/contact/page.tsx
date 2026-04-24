@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import Script from "next/script";
 
-// Simple, accessible Contact page with a basic form.
+// Simple, accessible contact page with a basic form.
 // Notes:
 // - Copy uses next-intl with the "contact" namespace (see messages/*.json).
 // - For now, submission is handled client-side only (no email sending yet).
@@ -42,15 +42,16 @@ const ContactPage: React.FC = () => {
         sitekey: siteKey,
         callback: (token: string) => {
           setCaptchaToken(token);
-          setErrors((e) => {
-            const { captcha, ...rest } = e;
-            return rest;
+          setErrors((prev) => {
+            const next = { ...prev };
+            delete next.captcha;
+            return next;
           });
         },
         "expired-callback": () => {
           setCaptchaToken(null);
         },
-        theme: "light",
+        theme: document.documentElement.dataset.theme === "light" ? "light" : "dark",
         size: "normal",
       });
       setCaptchaWidgetId(id);
@@ -145,7 +146,7 @@ const ContactPage: React.FC = () => {
         }
         setCaptchaToken(null);
       } catch {}
-    } catch (err) {
+    } catch {
       setStatus("error");
     }
   };
@@ -161,7 +162,7 @@ const ContactPage: React.FC = () => {
       )}
       {/* Title and short description */}
       <h1 className="mb-3 text-4xl font-semibold tracking-tight">{t("title")}</h1>
-      <p className="text-neutral-600 dark:text-neutral-300 mb-4">{t("description")}</p>
+      <p className="mb-4 text-muted">{t("description")}</p>
 
       {/* Social links row: external links open in a new tab; email uses mailto */}
       <div className="mb-8 flex items-center gap-3">
@@ -170,7 +171,7 @@ const ContactPage: React.FC = () => {
           href="https://www.linkedin.com/in/sergio-mamani-3405/"
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-neutral-300 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800"
+          className="inline-flex h-10 w-10 items-center justify-center rounded-full border ui-border ui-surface text-foreground hover:bg-surface-2"
           aria-label={t("links.linkedin")}
           title={t("links.linkedin")}
         >
@@ -185,7 +186,7 @@ const ContactPage: React.FC = () => {
           href="https://github.com/Zergio88"
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-neutral-300 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800"
+          className="inline-flex h-10 w-10 items-center justify-center rounded-full border ui-border ui-surface text-foreground hover:bg-surface-2"
           aria-label={t("links.github")}
           title={t("links.github")}
         >
@@ -198,7 +199,7 @@ const ContactPage: React.FC = () => {
         {/* Email */}
         <a
           href="mailto:sergiomamani@live.com.ar"
-          className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-neutral-300 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800"
+          className="inline-flex h-10 w-10 items-center justify-center rounded-full border ui-border ui-surface text-foreground hover:bg-surface-2"
           aria-label={t("links.email")}
           title={t("links.email")}
         >
@@ -224,7 +225,7 @@ const ContactPage: React.FC = () => {
             placeholder={t("placeholders.name")}
             value={form.name}
             onChange={onChange}
-            className="w-full rounded-md border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full rounded-md border ui-border ui-surface px-3 py-2 text-sm text-foreground outline-none focus:ring-2 focus:ring-accent"
             aria-invalid={Boolean(errors.name)}
             aria-describedby={errors.name ? "name-error" : undefined}
           />
@@ -248,7 +249,7 @@ const ContactPage: React.FC = () => {
             placeholder={t("placeholders.email")}
             value={form.email}
             onChange={onChange}
-            className="w-full rounded-md border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full rounded-md border ui-border ui-surface px-3 py-2 text-sm text-foreground outline-none focus:ring-2 focus:ring-accent"
             aria-invalid={Boolean(errors.email)}
             aria-describedby={errors.email ? "email-error" : undefined}
           />
@@ -271,7 +272,7 @@ const ContactPage: React.FC = () => {
             placeholder={t("placeholders.subject")}
             value={form.subject}
             onChange={onChange}
-            className="w-full rounded-md border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full rounded-md border ui-border ui-surface px-3 py-2 text-sm text-foreground outline-none focus:ring-2 focus:ring-accent"
           />
         </div>
 
@@ -287,7 +288,7 @@ const ContactPage: React.FC = () => {
             placeholder={t("placeholders.message")}
             value={form.message}
             onChange={onChange}
-            className="w-full rounded-md border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full rounded-md border ui-border ui-surface px-3 py-2 text-sm text-foreground outline-none focus:ring-2 focus:ring-accent"
             aria-invalid={Boolean(errors.message)}
             aria-describedby={errors.message ? "message-error" : undefined}
           />
@@ -313,7 +314,7 @@ const ContactPage: React.FC = () => {
           <button
             type="submit"
             disabled={status === "submitting"}
-            className="inline-flex items-center justify-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-60"
+            className="inline-flex items-center justify-center rounded-md bg-accent px-4 py-2 text-sm font-medium text-accent-foreground hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-accent disabled:opacity-60"
           >
             {status === "submitting" ? t("form.sending") : t("form.submit")}
           </button>

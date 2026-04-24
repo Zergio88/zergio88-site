@@ -46,28 +46,28 @@ const portableTextComponents: PortableTextComponents = {
             className="h-auto w-full rounded-xl object-cover shadow-2xl"
           />
           {value?.alt && (
-            <figcaption className="text-sm text-gray-400">{value.alt}</figcaption>
+            <figcaption className="text-sm text-muted">{value.alt}</figcaption>
           )}
         </figure>
       );
     },
   },
   block: {
-    h2: ({ children }) => <h2 className="mt-12 text-3xl font-semibold text-white">{children}</h2>,
-    h3: ({ children }) => <h3 className="mt-10 text-2xl font-semibold text-white">{children}</h3>,
-    normal: ({ children }) => <p className="my-5 leading-relaxed text-gray-200">{children}</p>,
+    h2: ({ children }) => <h2 className="mt-12 text-3xl font-semibold text-foreground">{children}</h2>,
+    h3: ({ children }) => <h3 className="mt-10 text-2xl font-semibold text-foreground">{children}</h3>,
+    normal: ({ children }) => <p className="my-5 leading-relaxed text-foreground">{children}</p>,
     blockquote: ({ children }) => (
-      <blockquote className="my-8 border-l-4 border-white/30 pl-6 text-lg italic text-gray-200">
+      <blockquote className="my-8 border-l-4 ui-border pl-6 text-lg italic text-muted">
         {children}
       </blockquote>
     ),
   },
   list: {
     bullet: ({ children }) => (
-      <ul className="my-6 ml-6 list-disc space-y-2 text-gray-200">{children}</ul>
+      <ul className="my-6 ml-6 list-disc space-y-2 text-foreground">{children}</ul>
     ),
     number: ({ children }) => (
-      <ol className="my-6 ml-6 list-decimal space-y-2 text-gray-200">{children}</ol>
+      <ol className="my-6 ml-6 list-decimal space-y-2 text-foreground">{children}</ol>
     ),
   },
   listItem: {
@@ -80,13 +80,13 @@ const portableTextComponents: PortableTextComponents = {
         href={value?.href ?? '#'}
         target="_blank"
         rel="noreferrer"
-        className="font-medium text-sky-400 underline decoration-sky-400/40 underline-offset-4 transition hover:text-sky-300"
+        className="font-medium text-accent underline decoration-accent underline-offset-4 transition hover:opacity-85"
       >
         {children}
       </a>
     ),
-    strong: ({ children }) => <strong className="font-semibold text-white">{children}</strong>,
-    em: ({ children }) => <em className="font-medium text-gray-200">{children}</em>,
+    strong: ({ children }) => <strong className="font-semibold text-foreground">{children}</strong>,
+    em: ({ children }) => <em className="font-medium text-foreground">{children}</em>,
     underline: ({ children }) => <span className="underline underline-offset-4">{children}</span>,
   },
 };
@@ -103,10 +103,10 @@ export default async function ProjectDetailPage({ params }: PageProps) {
   return (
     <article className="mx-auto flex max-w-4xl flex-col gap-10 px-6 py-12">
       <header className="flex flex-col gap-4 text-balance">
-        <p className="text-xs uppercase tracking-[0.35em] text-gray-500">{locale}</p>
+        <p className="text-xs uppercase tracking-[0.35em] text-muted">{locale}</p>
         <h1 className="text-4xl font-semibold leading-tight md:text-5xl">{post.title}</h1>
         {post.publishedAt && (
-          <time className="text-xs uppercase tracking-[0.2em] text-gray-500">
+          <time className="text-xs uppercase tracking-[0.2em] text-muted">
             {new Date(post.publishedAt).toLocaleDateString(locale, {
               year: 'numeric',
               month: 'long',
@@ -115,13 +115,13 @@ export default async function ProjectDetailPage({ params }: PageProps) {
           </time>
         )}
         {post.description && (
-          <p className="text-lg leading-relaxed text-gray-300 md:text-xl">
+          <p className="text-lg leading-relaxed text-muted md:text-xl">
             {post.description}
           </p>
         )}
         {post.githubUrl && (
           <a
-            className="w-fit rounded-md border border-white/20 px-5 py-2 text-sm font-semibold text-white transition hover:border-white hover:bg-white/10"
+            className="w-fit rounded-md border ui-border px-5 py-2 text-sm font-semibold text-foreground transition hover:bg-surface-2"
             href={post.githubUrl}
             target="_blank"
             rel="noreferrer"
@@ -143,24 +143,24 @@ export default async function ProjectDetailPage({ params }: PageProps) {
       )}
 
       {post.content ? (
-        <section className="prose prose-invert prose-lg max-w-none prose-headings:mt-10 prose-h2:text-white prose-h3:text-white prose-a:text-sky-400 prose-strong:text-white prose-hr:border-white/20">
+        <section className="prose prose-lg max-w-none prose-headings:mt-10 prose-headings:text-foreground prose-p:text-foreground prose-a:text-accent prose-strong:text-foreground prose-hr:border-border">
           <PortableText value={post.content} components={portableTextComponents} />
         </section>
       ) : (
-        <p className="text-base text-gray-400">
+        <p className="text-base text-muted">
           Aún no se agregó contenido detallado a este proyecto. Próximamente habrá más información.
         </p>
       )}
 
       {post.githubUrl && (
-        <footer className="rounded-2xl border border-white/10 bg-white/5 p-5 md:p-6">
+        <footer className="rounded-2xl border ui-border ui-surface p-5 md:p-6">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="space-y-1">
-              <p className="text-sm uppercase tracking-[0.25em] text-gray-500">{t('footerTitle')}</p>
-              <p className="text-sm leading-relaxed text-gray-300">{t('footerDescription')}</p>
+              <p className="text-sm uppercase tracking-[0.25em] text-muted">{t('footerTitle')}</p>
+              <p className="text-sm leading-relaxed text-muted">{t('footerDescription')}</p>
             </div>
             <a
-              className="w-fit rounded-md border border-white/20 px-5 py-2 text-sm font-semibold text-white transition hover:border-white hover:bg-white/10"
+              className="w-fit rounded-md border ui-border px-5 py-2 text-sm font-semibold text-foreground transition hover:bg-surface-2"
               href={post.githubUrl}
               target="_blank"
               rel="noreferrer"

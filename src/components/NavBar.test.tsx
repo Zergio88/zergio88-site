@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 
 jest.mock('next/link', () => ({
   __esModule: true,
@@ -27,6 +27,9 @@ jest.mock('next-intl', () => ({
     if (key === 'projects') return 'Proyectos';
     if (key === 'contact') return 'Contacto';
     if (key === 'about') return 'Sobre mí';
+    if (key === 'themeToggle') return 'Cambiar tema';
+    if (key === 'themeDark') return 'Oscuro';
+    if (key === 'themeLight') return 'Claro';
     return key;
   }
 }));
@@ -34,4 +37,17 @@ jest.mock('next-intl', () => ({
 test('muestra el texto de proyectos', () => {
   render(<NavBar />);
   expect(screen.getByText(/proyectos/i)).toBeInTheDocument();
+});
+
+test('alterna tema y guarda preferencia', () => {
+  document.documentElement.dataset.theme = 'dark';
+  window.localStorage.clear();
+
+  render(<NavBar />);
+
+  const themeButtons = screen.getAllByRole('button', { name: /cambiar tema/i });
+  fireEvent.click(themeButtons[0]);
+
+  expect(document.documentElement.dataset.theme).toBe('light');
+  expect(window.localStorage.getItem('theme')).toBe('light');
 });

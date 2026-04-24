@@ -32,14 +32,14 @@ export default function ProjectsPage() {
   return (
     <div className="mx-auto max-w-6xl px-6 pt-8 pb-12">
       <h1 className="mb-3 text-4xl font-semibold tracking-tight">{t("title")}</h1>
-      <p className="mb-8">{t("description")}</p>
+      <p className="mb-8 text-muted">{t("description")}</p>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
         {posts.filter((p) => !!p.slug?.current).map((post) => (
           <Link
             key={post._id}
             href={`/${locale}/projectss/${post.slug.current}`}
-            className="border rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition"
+            className="overflow-hidden rounded-lg border ui-border ui-surface shadow-lg transition hover:bg-surface-2 hover:shadow-xl"
           >
             {post.coverImage && (
               <Image
@@ -53,7 +53,7 @@ export default function ProjectsPage() {
             )}
             <div className="p-4">
               <h2 className="font-bold text-lg">{post.title}</h2>
-              <p className="mt-2 text-sm">{post.description}</p>
+              <p className="mt-2 text-sm text-muted">{post.description}</p>
             </div>
           </Link>
         ))}
