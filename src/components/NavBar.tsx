@@ -21,19 +21,22 @@ export default function NavBar() {
   const pathname = usePathname();
   const t = useTranslations("navbar");
   const [menuOpen, setMenuOpen] = useState(false);
-  const [theme, setTheme] = useState<Theme>("dark");
+  const [theme, setTheme] = useState<Theme>(() => {
+    if (typeof document === "undefined") return "dark";
+    const dataTheme = document.documentElement.dataset.theme;
+    return dataTheme === "dark" || dataTheme === "light" ? dataTheme : "dark";
+  });
 
   useEffect(() => {
     const root = document.documentElement;
     const dataTheme = root.dataset.theme;
     if (dataTheme === "dark" || dataTheme === "light") {
-      setTheme(dataTheme);
+      root.style.colorScheme = dataTheme;
       return;
     }
 
     root.dataset.theme = "dark";
     root.style.colorScheme = "dark";
-    setTheme("dark");
   }, []);
 
   function handleSelectOnChange(currentLocale: (typeof routing.locales)[number]) {

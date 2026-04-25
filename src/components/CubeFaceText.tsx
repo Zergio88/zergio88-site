@@ -28,7 +28,6 @@ export function CubeFaceText({
 
   useEffect(() => {
     let current = 0;
-    setAnimatedText("");
     const interval = setInterval(() => {
       current++;
       setAnimatedText(text.slice(0, current));
