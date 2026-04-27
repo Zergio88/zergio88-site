@@ -12,7 +12,7 @@
   },
   "titles": {
     "iam": "Me llamo Sergio Mamani",
-    "dev": "Software Developer",
+    "dev": "Desarrollador de software",
     "profession": "Desarrollador de software Java enfocado en backend",
     "enthusiast": "Apasionado por el aprendizaje, la tecnología y la resolución de problemas",
     "prefer": "Interesado en automatización, inteligencia artificial y desarrollo de software moderno"
@@ -23,7 +23,7 @@
   },
   "projectss": {
     "title": "Proyectos",
-    "description": "Listado de proyectos.",
+    "description": "Aquí encontrarás algunos proyectos en los que trabajé.",
     "viewCode": "Ver código en GitHub",
     "footerTitle": "GitHub",
     "footerDescription": "El código completo lo encuentras en el repositorio."
