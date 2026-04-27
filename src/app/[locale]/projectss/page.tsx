@@ -39,21 +39,23 @@ export default function ProjectsPage() {
           <Link
             key={post._id}
             href={`/${locale}/projectss/${post.slug.current}`}
-            className="overflow-hidden rounded-lg border ui-border ui-surface shadow-lg transition hover:bg-surface-2 hover:shadow-xl"
+            className="project-card group rounded-lg border ui-border ui-surface shadow-lg hover:border-accent hover:bg-surface-2 focus-visible:border-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
           >
             {post.coverImage && (
-              <Image
-                src={urlFor(post.coverImage).width(600).height(360).url()}
-                alt={post.title}
-                width={600}
-                height={360}
-                className="h-48 w-full object-cover"
-                sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-              />
+              <div className="project-card-media">
+                <Image
+                  src={urlFor(post.coverImage).width(600).height(360).url()}
+                  alt={post.title}
+                  width={600}
+                  height={360}
+                  className="project-card-image h-48 w-full object-cover"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                />
+              </div>
             )}
-            <div className="p-4">
-              <h2 className="font-bold text-lg">{post.title}</h2>
-              <p className="mt-2 text-sm text-muted">{post.description}</p>
+            <div className="project-card-content p-4">
+              <h2 className="project-card-title font-bold text-lg">{post.title}</h2>
+              <p className="project-card-description mt-2 text-sm">{post.description}</p>
             </div>
           </Link>
         ))}
