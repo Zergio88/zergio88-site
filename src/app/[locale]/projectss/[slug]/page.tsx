@@ -1,13 +1,10 @@
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
-import {
-  PortableText,
-  type PortableTextComponents,
-  type PortableTextMarkComponentProps,
-} from '@portabletext/react';
+import { type PortableTextMarkComponentProps } from '@portabletext/react';
 import { getPostBySlug, getPosts, urlFor } from '@/lib/sanity';
 import type { ImageGalleryPortableTextItem } from '@/lib/sanity';
+import PostContent from '@/components/PostContent';
 import type { SanityImageSource } from '@sanity/image-url/lib/types/types';
 import ImageGallery from '@/components/ImageGallery';
 import { routing } from '@/i18n/routing';
@@ -144,7 +141,7 @@ export default async function ProjectDetailPage({ params }: PageProps) {
 
       {post.content ? (
         <section className="prose prose-lg max-w-none prose-headings:mt-10 prose-headings:text-foreground prose-p:text-foreground prose-a:text-accent prose-strong:text-foreground prose-hr:border-border">
-          <PortableText value={post.content} components={portableTextComponents} />
+          <PostContent content={post.content} />
         </section>
       ) : (
         <p className="text-base text-muted">

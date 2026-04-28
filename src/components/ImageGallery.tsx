@@ -5,11 +5,12 @@ import Image from 'next/image'
 import type { SanityGalleryImage } from '@/lib/sanity'
 
 type Props = {
-  layout: 'two-column' | 'single-column'
+  layout?: 'two-column' | 'single-column' | 'three-column'
   images: SanityGalleryImage[]
+  onOpen?: (images: SanityGalleryImage[], index: number) => void
 }
 
-export default function ImageGallery({ layout, images }: Props) {
+export default function ImageGallery({ layout, images, onOpen }: Props) {
   const [selected, setSelected] = useState<SanityGalleryImage | null>(null)
 
   const close = useCallback(() => setSelected(null), [])
@@ -28,9 +29,19 @@ export default function ImageGallery({ layout, images }: Props) {
   }, [close])
 
   const gridClass =
-    layout === 'two-column'
-      ? 'grid-cols-1 md:grid-cols-2'
-      : 'grid-cols-1'
+    layout === 'three-column'
+      ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
+      : layout === 'two-column'
+        ? 'grid-cols-1 md:grid-cols-2'
+        : 'grid-cols-1'
+
+  // Keep thumbnails contained and avoid the "zoomed crop" feel in previews.
+  const thumbHeightClass =
+    layout === 'three-column'
+      ? 'h-44 sm:h-48 lg:h-44'
+      : layout === 'two-column'
+        ? 'h-48 sm:h-56 md:h-52'
+        : 'h-52 sm:h-60 md:h-64'
 
   const validImages = images.filter((img) => img.asset?.url)
 
@@ -42,35 +53,30 @@ export default function ImageGallery({ layout, images }: Props) {
       <div className={`grid ${gridClass} gap-4 my-8`}>
         {validImages.map((img, i) => {
           const { url } = img.asset!
-          const w = img.asset?.metadata?.dimensions?.width ?? 1200
-          const h = img.asset?.metadata?.dimensions?.height ?? 800
-          const aspectRatio = w / h
 
           return (
             <button
               key={img._key ?? i}
               type="button"
-              onClick={() => setSelected(img)}
+              onClick={() => onOpen ? onOpen(validImages, i) : setSelected(img)}
               aria-label={img.alt ?? `Open image ${i + 1}`}
-              className="group relative overflow-hidden rounded-xl border border-white/10 shadow-md
-                         transition-transform duration-300 hover:scale-[1.02]
+              className="group relative overflow-hidden rounded-xl border border-white/10 bg-black/20 shadow-md
+                         transition-colors duration-200 hover:border-white/25
                          focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
             >
-              {/* Maintain natural aspect ratio without a fixed height */}
-              <div
-                className="relative w-full"
-                style={{ paddingBottom: `${(1 / aspectRatio) * 100}%` }}
-              >
+              <div className={`relative w-full ${thumbHeightClass}`}>
                 <Image
                   src={url}
                   alt={img.alt ?? `Gallery image ${i + 1}`}
                   fill
                   sizes={
-                    layout === 'two-column'
-                      ? '(max-width: 768px) 100vw, 50vw'
-                      : '(max-width: 768px) 100vw, (max-width: 1024px) 80vw, 800px'
+                    layout === 'three-column'
+                      ? '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 34vw'
+                      : layout === 'two-column'
+                        ? '(max-width: 768px) 100vw, 50vw'
+                        : '(max-width: 768px) 100vw, (max-width: 1024px) 80vw, 800px'
                   }
-                  className="object-cover transition-transform duration-300 group-hover:scale-105"
+                  className="object-contain scale-[1.10] p-0.5"
                 />
               </div>
             </button>

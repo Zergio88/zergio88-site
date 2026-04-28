@@ -55,7 +55,7 @@ export type SanityGalleryImage = {
 export type ImageGalleryPortableTextItem = {
   _type: 'imageGallery'
   _key?: string
-  layout: 'two-column' | 'single-column'
+  layout?: 'two-column' | 'single-column' | 'three-column'
   images: SanityGalleryImage[]
 }
 
