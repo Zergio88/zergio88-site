@@ -99,11 +99,11 @@
     "down": "Next Js"
   },
   "random": {
-    "front": "Flutter",
+    "front": "Java FX",
     "right": "React\nNative",
     "back": "Java",
     "left": "Kotlin",
-    "top": "Java FX",
+    "top": "Flutter",
     "down": "Swing"
   }
 }
