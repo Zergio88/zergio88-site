@@ -177,7 +177,7 @@ export async function POST(req: Request) {
   const apiKey = process.env.RESEND_API_KEY;
   const from = process.env.RESEND_FROM;
   const to = process.env.RESEND_TO;
-  const recaptchaSecret = process.env.RECAPTCHA_SECRET_KEY;
+  const turnstileSecret = process.env.TURNSTILE_SECRET_KEY;
   const isProd = process.env.NODE_ENV === 'production';
   if (!apiKey || !from || !to) {
     if (isProd) {
@@ -195,7 +195,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: true, dev: true, reason: "email_disabled" });
     }
   }
-  if (!recaptchaSecret) {
+  if (!turnstileSecret) {
     if (isProd) {
       return NextResponse.json(
         { ok: false, error: "captcha_misconfigured" },
@@ -241,23 +241,22 @@ export async function POST(req: Request) {
   try {
   const data: unknown = await req.json();
 
-    // Verify reCAPTCHA token before proceeding
+    // Verify the Turnstile token before proceeding.
   const ip = (req.headers.get("x-forwarded-for") || "").split(",")[0]?.trim() || undefined;
   const captchaToken = typeof (data as ContactBody)?.captchaToken === 'string' ? (data as ContactBody).captchaToken : undefined;
-    const minScore = parseFloat(process.env.RECAPTCHA_MIN_SCORE || "0.5");
     if (!captchaToken) {
       return NextResponse.json({ ok: false, reason: "captcha" }, { status: 400 });
     }
 
     const params = new URLSearchParams();
-    params.append("secret", recaptchaSecret);
+    params.append("secret", turnstileSecret);
     params.append("response", captchaToken);
     if (ip) params.append("remoteip", ip);
 
-  type RecaptchaVerifyResponse = { success?: boolean; score?: number };
+  type TurnstileVerifyResponse = { success?: boolean };
   let verifyJson: unknown = {};
     try {
-      const verifyRes = await fetch("https://www.google.com/recaptcha/api/siteverify", {
+      const verifyRes = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: params,
@@ -265,12 +264,12 @@ export async function POST(req: Request) {
       verifyJson = await verifyRes.json().catch(() => ({}));
     } catch (e) {
       if (process.env.NODE_ENV !== 'production') {
-        console.error('[contact] reCAPTCHA verify fetch failed', e);
+        console.error('[contact] Turnstile verify fetch failed', e);
       }
       return NextResponse.json({ ok: false, reason: "captcha_network" }, { status: 400 });
     }
     const ok = typeof verifyJson === 'object' && verifyJson !== null
-      ? ((verifyJson as RecaptchaVerifyResponse).success === true && (((verifyJson as RecaptchaVerifyResponse).score ?? 1) >= minScore))
+      ? (verifyJson as TurnstileVerifyResponse).success === true
       : false;
     if (!ok) {
       return NextResponse.json({ ok: false, reason: "captcha" }, { status: 400 });
