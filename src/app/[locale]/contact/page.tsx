@@ -9,7 +9,7 @@ import Script from "next/script";
 // - Copy uses next-intl with the "contact" namespace (see messages/*.json).
 // - For now, submission is handled client-side only (no email sending yet).
 // - We'll later plug this into a server action or API route using Resend,
-//   and add a CAPTCHA widget (reCAPTCHA/hCaptcha) where indicated below.
+//   and add a CAPTCHA widget where indicated below.
 const ContactPage: React.FC = () => {
   const t = useTranslations("contact");
 
@@ -22,23 +22,22 @@ const ContactPage: React.FC = () => {
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error" | "limit">("idle");
-  const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
+  const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
-  const [captchaWidgetId, setCaptchaWidgetId] = useState<number | null>(null);
-  const recaptchaContainerRef = useRef<HTMLDivElement | null>(null);
+  const [captchaWidgetId, setCaptchaWidgetId] = useState<string | null>(null);
+  const turnstileContainerRef = useRef<HTMLDivElement | null>(null);
 
-  // Initialize reCAPTCHA v2 Checkbox
+  // Initialize the Turnstile widget after its script is available.
   useEffect(() => {
     if (!siteKey) return;
     const init = () => {
-      const g = typeof window !== 'undefined' ? window.grecaptcha : undefined;
-      if (!g) return;
+      const turnstile = typeof window !== 'undefined' ? window.turnstile : undefined;
+      if (!turnstile) return;
       if (captchaWidgetId !== null) return; // already rendered in this lifecycle
-      const container = recaptchaContainerRef.current;
+      const container = turnstileContainerRef.current;
       if (!container) return;
-      // If the container already has children (iframe), avoid rendering again
       if (container.childElementCount > 0) return;
-      const id = g.render(container, {
+      const id = turnstile.render(container, {
         sitekey: siteKey,
         callback: (token: string) => {
           setCaptchaToken(token);
@@ -51,27 +50,29 @@ const ContactPage: React.FC = () => {
         "expired-callback": () => {
           setCaptchaToken(null);
         },
+        "error-callback": () => {
+          setCaptchaToken(null);
+          setErrors((prev) => ({ ...prev, captcha: t("form.captcha_failed") }));
+        },
         theme: document.documentElement.dataset.theme === "light" ? "light" : "dark",
-        size: "normal",
       });
       setCaptchaWidgetId(id);
     };
 
-    // If grecaptcha already loaded, init immediately; otherwise set onload handler once
-    const g = typeof window !== 'undefined' ? window.grecaptcha : undefined;
-    if (g) {
+    const turnstile = typeof window !== 'undefined' ? window.turnstile : undefined;
+    if (turnstile) {
       init();
     } else {
       if (typeof window !== 'undefined') {
-        window.onRecaptchaLoad = () => init();
+        window.onTurnstileLoad = () => init();
       }
     }
     return () => {
       if (typeof window !== 'undefined') {
-        window.onRecaptchaLoad = undefined;
+        window.onTurnstileLoad = undefined;
       }
     };
-  }, [siteKey, captchaWidgetId]);
+  }, [siteKey, captchaWidgetId, t]);
 
   // Basic client-side validation. We'll also validate on the server later.
   const validate = () => {
@@ -98,11 +99,7 @@ const ContactPage: React.FC = () => {
       return;
     }
 
-    // TODO: Insert CAPTCHA token retrieval here when we add the widget.
-    // e.g., const captchaToken = await captcha.execute();
-
     try {
-      // Execute reCAPTCHA v3 to obtain token
       if (!captchaToken) {
         setStatus("idle");
         setErrors({ captcha: t("form.captcha_required") });
@@ -140,9 +137,9 @@ const ContactPage: React.FC = () => {
       setForm({ name: "", email: "", subject: "", message: "" });
       // Reset captcha widget for a new submission cycle
       try {
-        const g = typeof window !== 'undefined' ? window.grecaptcha : undefined;
-        if (g && captchaWidgetId !== null) {
-          g.reset(captchaWidgetId);
+        const turnstile = typeof window !== 'undefined' ? window.turnstile : undefined;
+        if (turnstile && captchaWidgetId !== null) {
+          turnstile.reset(captchaWidgetId);
         }
         setCaptchaToken(null);
       } catch {}
@@ -153,10 +150,10 @@ const ContactPage: React.FC = () => {
 
   return (
     <div className="mx-auto max-w-3xl px-6 pt-8 pb-12 sm:px-8">
-      {/* reCAPTCHA v2 checkbox script */}
+      {/* Turnstile script */}
       {siteKey && (
         <Script
-          src="https://www.google.com/recaptcha/api.js?onload=onRecaptchaLoad&render=explicit"
+          src="https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onTurnstileLoad&render=explicit"
           strategy="afterInteractive"
         />
       )}
@@ -299,10 +296,10 @@ const ContactPage: React.FC = () => {
           )}
         </div>
 
-        {/* reCAPTCHA v2 widget */}
+        {/* Turnstile widget */}
         {siteKey && (
           <div>
-            <div ref={recaptchaContainerRef} id="recaptcha-container" className="mb-2" />
+            <div ref={turnstileContainerRef} id="turnstile-container" className="mb-2" />
             {errors.captcha && (
               <p className="text-xs text-red-600">{errors.captcha}</p>
             )}
