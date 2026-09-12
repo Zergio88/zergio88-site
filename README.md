@@ -28,7 +28,7 @@ This project is in production and actively maintained.
 
 - Localized routing and message catalogs for multi-language pages
 - Dynamic portfolio content managed from Sanity
-- Custom API route for contact submissions with validation and reCAPTCHA verification
+- Custom API route for contact submissions with validation and Cloudflare Turnstile verification
 - Daily and monthly contact limits backed by Redis (with safe fallback behavior)
 - Component-based frontend architecture with reusable UI and animation modules
 
@@ -54,5 +54,5 @@ src/
 
 ## 6. Production
 
-- Live site: [zergio88.site](https://zergio88.site)
+- Live site: [zergio88.site](https://zergio88.me)
 - Hosting: Vercel
